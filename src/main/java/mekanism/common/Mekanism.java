@@ -93,6 +93,7 @@ import mekanism.common.tags.MekanismTags;
 import mekanism.common.tile.component.TileComponentChunkLoader.ChunkValidationCallback;
 import mekanism.common.tile.machine.TileEntityOredictionificator;
 import mekanism.common.world.GenHandler;
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -128,8 +129,7 @@ import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(Mekanism.MODID)
-public class Mekanism {
+public class Mekanism implements ModInitializer {
 
     public static final String MODID = MekanismAPI.MEKANISM_MODID;
     public static final String MOD_NAME = "Mekanism";
@@ -155,7 +155,7 @@ public class Mekanism {
     /**
      * Mekanism version number
      */
-    public final Version versionNumber;
+    public Version versionNumber;
     /**
      * MultiblockManagers for various structures
      */
@@ -185,7 +185,9 @@ public class Mekanism {
 
     private ReloadListener recipeCacheManager;
 
-    public Mekanism() {
+
+    @Override
+    public void onInitialize() {
         instance = this;
         MekanismConfig.registerConfigs(ModLoadingContext.get());
 
