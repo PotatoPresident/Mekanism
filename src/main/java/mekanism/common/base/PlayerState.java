@@ -30,6 +30,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 
 public class PlayerState {
 
@@ -40,7 +41,7 @@ public class PlayerState {
     private final Object2FloatMap<UUID> stepAssistedPlayers = new Object2FloatOpenHashMap<>();
     private final Map<UUID, FlightInfo> flightInfoMap = new Object2ObjectOpenHashMap<>();
 
-    private IWorld world;
+    private World world;
 
     public void clear(boolean isRemote) {
         activeJetpacks.clear();
@@ -91,7 +92,7 @@ public class PlayerState {
         }
     }
 
-    public void init(IWorld world) {
+    public void init(World world) {
         this.world = world;
     }
 

@@ -1,13 +1,16 @@
 package mekanism.common;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.CommandDispatcher;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
 import mekanism.api.Coord4D;
 import mekanism.api.MekanismAPI;
 import mekanism.api.MekanismIMC;
@@ -94,15 +97,31 @@ import mekanism.common.tile.component.TileComponentChunkLoader.ChunkValidationCa
 import mekanism.common.tile.machine.TileEntityOredictionificator;
 import mekanism.common.world.GenHandler;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.SemanticVersion;
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.command.CommandSource;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.ModLoadingContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.world.ForgeChunkManager;
@@ -189,27 +208,27 @@ public class Mekanism implements ModInitializer {
     @Override
     public void onInitialize() {
         instance = this;
-        MekanismConfig.registerConfigs(ModLoadingContext.get());
+        MekanismConfig.registerConfigs(FabricLoader.getInstance().getModContainer(MODID).get());
 
-        MinecraftForge.EVENT_BUS.addListener(this::onEnergyTransferred);
-        MinecraftForge.EVENT_BUS.addListener(this::onChemicalTransferred);
-        MinecraftForge.EVENT_BUS.addListener(this::onLiquidTransferred);
-        MinecraftForge.EVENT_BUS.addListener(this::chunkSave);
-        MinecraftForge.EVENT_BUS.addListener(this::onChunkDataLoad);
-        MinecraftForge.EVENT_BUS.addListener(this::onWorldLoad);
-        MinecraftForge.EVENT_BUS.addListener(this::onWorldUnload);
-        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
-        MinecraftForge.EVENT_BUS.addListener(this::serverStopped);
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::addReloadListenersLowest);
-        MinecraftForge.EVENT_BUS.addListener(BinInsertRecipe::onCrafting);
-        MinecraftForge.EVENT_BUS.addListener(this::onVanillaTagsReload);
-        MinecraftForge.EVENT_BUS.addListener(this::onCustomTagsReload);
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, GenHandler::onBiomeLoad);
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::onConfigLoad);
-        modEventBus.addListener(this::imcQueue);
-        modEventBus.addListener(this::imcHandle);
+        //MinecraftForge.EVENT_BUS.addListener(this::onEnergyTransferred);
+        //MinecraftForge.EVENT_BUS.addListener(this::onChemicalTransferred);
+        //MinecraftForge.EVENT_BUS.addListener(this::onLiquidTransferred);
+        ServerChunkEvents.CHUNK_UNLOAD.register(this::chunkSave);
+        ServerChunkEvents.CHUNK_LOAD.register(this::onChunkDataLoad);
+        ServerWorldEvents.LOAD.register(this::onWorldLoad);
+        ServerWorldEvents.UNLOAD.register(this::onWorldUnload);
+        CommandRegistrationCallback.EVENT.register(this::registerCommands);
+        ServerLifecycleEvents.SERVER_STOPPED.register(this::serverStopped);
+        //MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::addReloadListenersLowest);
+        //MinecraftForge.EVENT_BUS.addListener(BinInsertRecipe::onCrafting);
+        //MinecraftForge.EVENT_BUS.addListener(this::onVanillaTagsReload);
+        //MinecraftForge.EVENT_BUS.addListener(this::onCustomTagsReload);
+        //MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, GenHandler::onBiomeLoad);
+        //IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        //modEventBus.addListener(this::commonSetup);
+        //modEventBus.addListener(this::onConfigLoad);
+        //modEventBus.addListener(this::imcQueue);
+        //modEventBus.addListener(this::imcHandle);
         MekanismItems.ITEMS.register(modEventBus);
         MekanismBlocks.BLOCKS.register(modEventBus);
         MekanismFluids.FLUIDS.register(modEventBus);
@@ -234,9 +253,10 @@ public class Mekanism implements ModInitializer {
         modEventBus.addGenericListener(Slurry.class, this::registerSlurries);
         modEventBus.addGenericListener(IRecipeSerializer.class, this::registerRecipeSerializers);
         //Set our version number to match the mods.toml file, which matches the one in our build.gradle
-        versionNumber = new Version(ModLoadingContext.get().getActiveContainer());
+        versionNumber = new Version(FabricLoader.getInstance().getModContainer(MODID).get());
         //Super early hooks, only reliable thing is for checking dependencies that we declare we are after
         hooks.hookConstructor();
+        /*
         if (hooks.CraftTweakerLoaded && !DatagenModLoader.isRunningDataGen()) {
             //Attempt to grab the mod event bus for CraftTweaker so that we can register our custom content in their namespace
             // to make it clearer which chemicals were added by CraftTweaker, and which are added by actual mods.
@@ -257,6 +277,7 @@ public class Mekanism implements ModInitializer {
             crtModEventBus.addGenericListener(Slurry.class, EventPriority.LOWEST, CrTContentUtils::registerCrTSlurries);
             crtModEventBus.addGenericListener(RobitSkin.class, EventPriority.LOWEST, CrTContentUtils::registerCrTRobitSkins);
         }
+         */
     }
 
     //Register the empty chemicals
@@ -316,16 +337,16 @@ public class Mekanism implements ModInitializer {
         event.addListener(getRecipeCacheManager());
     }
 
-    private void registerCommands(RegisterCommandsEvent event) {
+    private void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         BuildCommand.register("boiler", MekanismLang.BOILER, new BoilerBuilder());
         BuildCommand.register("matrix", MekanismLang.MATRIX, new MatrixBuilder());
         BuildCommand.register("tank", MekanismLang.DYNAMIC_TANK, new TankBuilder());
         BuildCommand.register("evaporation", MekanismLang.EVAPORATION_PLANT, new EvaporationBuilder());
         BuildCommand.register("sps", MekanismLang.SPS, new SPSBuilder());
-        event.getDispatcher().register(CommandMek.register());
+        dispatcher.register(CommandMek.register());
     }
 
-    private void serverStopped(FMLServerStoppedEvent event) {
+    private void serverStopped(MinecraftServer server) {
         //Clear all cache data, wait until server stopper though so that we make sure saving can use any data it needs
         playerState.clear(false);
         activeVibrators.clear();
@@ -349,11 +370,11 @@ public class Mekanism implements ModInitializer {
         MekanismIMC.addModulesToAll(MekanismModules.ENERGY_UNIT);
         MekanismIMC.addMekaSuitModules(MekanismModules.LASER_DISSIPATION_UNIT, MekanismModules.RADIATION_SHIELDING_UNIT);
         MekanismIMC.addMekaToolModules(MekanismModules.ATTACK_AMPLIFICATION_UNIT, MekanismModules.SILK_TOUCH_UNIT, MekanismModules.VEIN_MINING_UNIT,
-              MekanismModules.FARMING_UNIT, MekanismModules.SHEARING_UNIT, MekanismModules.TELEPORTATION_UNIT, MekanismModules.EXCAVATION_ESCALATION_UNIT);
+                MekanismModules.FARMING_UNIT, MekanismModules.SHEARING_UNIT, MekanismModules.TELEPORTATION_UNIT, MekanismModules.EXCAVATION_ESCALATION_UNIT);
         MekanismIMC.addMekaSuitHelmetModules(MekanismModules.ELECTROLYTIC_BREATHING_UNIT, MekanismModules.INHALATION_PURIFICATION_UNIT,
-              MekanismModules.VISION_ENHANCEMENT_UNIT, MekanismModules.SOLAR_RECHARGING_UNIT, MekanismModules.NUTRITIONAL_INJECTION_UNIT);
+                MekanismModules.VISION_ENHANCEMENT_UNIT, MekanismModules.SOLAR_RECHARGING_UNIT, MekanismModules.NUTRITIONAL_INJECTION_UNIT);
         MekanismIMC.addMekaSuitBodyarmorModules(MekanismModules.JETPACK_UNIT, MekanismModules.GRAVITATIONAL_MODULATING_UNIT, MekanismModules.CHARGE_DISTRIBUTION_UNIT,
-              MekanismModules.DOSIMETER_UNIT, MekanismModules.GEIGER_UNIT, MekanismModules.ELYTRA_UNIT);
+                MekanismModules.DOSIMETER_UNIT, MekanismModules.GEIGER_UNIT, MekanismModules.ELYTRA_UNIT);
         MekanismIMC.addMekaSuitPantsModules(MekanismModules.LOCOMOTIVE_BOOSTING_UNIT);
         MekanismIMC.addMekaSuitBootsModules(MekanismModules.HYDRAULIC_PROPULSION_UNIT, MekanismModules.MAGNETIC_ATTRACTION_UNIT, MekanismModules.FROST_WALKER_UNIT);
     }
@@ -381,10 +402,10 @@ public class Mekanism implements ModInitializer {
             //Register dispenser behaviors
             MekanismFluids.FLUIDS.registerBucketDispenserBehavior();
             registerDispenseBehavior(FluidTankItemDispenseBehavior.INSTANCE, MekanismBlocks.BASIC_FLUID_TANK, MekanismBlocks.ADVANCED_FLUID_TANK,
-                  MekanismBlocks.ELITE_FLUID_TANK, MekanismBlocks.ULTIMATE_FLUID_TANK, MekanismBlocks.CREATIVE_FLUID_TANK);
+                    MekanismBlocks.ELITE_FLUID_TANK, MekanismBlocks.ULTIMATE_FLUID_TANK, MekanismBlocks.CREATIVE_FLUID_TANK);
             registerDispenseBehavior(new ModuleDispenseBehavior(), MekanismItems.MEKA_TOOL);
             registerDispenseBehavior(new MekaSuitDispenseBehavior(), MekanismItems.MEKASUIT_HELMET, MekanismItems.MEKASUIT_BODYARMOR, MekanismItems.MEKASUIT_PANTS,
-                  MekanismItems.MEKASUIT_BOOTS);
+                    MekanismItems.MEKASUIT_BOOTS);
         });
 
         //Register player tracker
@@ -434,7 +455,7 @@ public class Mekanism implements ModInitializer {
         packetHandler.sendToReceivers(new PacketTransmitterUpdate(event.network, event.fluidType), event.network);
     }
 
-    private void chunkSave(ChunkDataEvent.Save event) {
+    private void chunkSave(ServerWorld world, WorldChunk chunk) {
         if (event.getWorld() != null && !event.getWorld().isClientSide()) {
             //TODO - 1.17: Make both this and load write to the main tag instead of the level sub tag. For now we are using the level tag
             // in both spots to have proper backwards compatibility with earlier mek release versions from 1.16
@@ -443,7 +464,7 @@ public class Mekanism implements ModInitializer {
         }
     }
 
-    private synchronized void onChunkDataLoad(ChunkDataEvent.Load event) {
+    private synchronized void onChunkDataLoad(ServerWorld world, WorldChunk chunk) {
         IWorld world = event.getWorld();
         if (world instanceof World && !world.isClientSide() && MekanismConfig.world.enableRegeneration.get()) {
             CompoundNBT levelTag = event.getData().getCompound(NBTConstants.CHUNK_DATA_LEVEL);
@@ -463,24 +484,24 @@ public class Mekanism implements ModInitializer {
         }
     }
 
-    private void onWorldLoad(WorldEvent.Load event) {
-        playerState.init(event.getWorld());
+    private void onWorldLoad(MinecraftServer server, ServerWorld world) {
+        playerState.init(world);
     }
 
-    private void onWorldUnload(WorldEvent.Unload event) {
+    private void onWorldUnload(MinecraftServer server, ServerWorld world) {
         // Make sure the global fake player drops its reference to the World
         // when the server shuts down
-        if (event.getWorld() instanceof ServerWorld) {
-            MekFakePlayer.releaseInstance(event.getWorld());
-        }
-        if (event.getWorld() instanceof World && MekanismConfig.general.validOredictionificatorFilters.hasInvalidationListeners()) {
+        MekFakePlayer.releaseInstance(world);
+        /* TODO
+        if (MekanismConfig.general.validOredictionificatorFilters.hasInvalidationListeners()) {
             //If there are any invalidation listeners for the oredictionificator as there was a loaded oredictionificator
             // then go through the entities and remove the corresponding invalidation listeners from them
-            for (TileEntity tile : ((World) event.getWorld()).blockEntityList) {
+            for (BlockEntity tile : world.getBlockEntity()) {
                 if (tile instanceof TileEntityOredictionificator) {
                     ((TileEntityOredictionificator) tile).removeInvalidationListener();
                 }
             }
         }
+         */
     }
 }

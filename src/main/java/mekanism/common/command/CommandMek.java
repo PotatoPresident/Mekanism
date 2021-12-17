@@ -17,8 +17,11 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.ILocationArgument;
 import net.minecraft.command.arguments.Vec3Argument;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
@@ -31,7 +34,7 @@ public class CommandMek {
 
     private static final Map<UUID, Stack<BlockPos>> tpStack = new Object2ObjectOpenHashMap<>();
 
-    public static LiteralArgumentBuilder<CommandSource> register() {
+    public static LiteralArgumentBuilder<ServerCommandSource> register() {
         return Commands.literal("mek")
               .then(BuildCommand.COMMAND)
               .then(ChunkCommand.register())

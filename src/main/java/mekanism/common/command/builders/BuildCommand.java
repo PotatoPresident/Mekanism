@@ -22,7 +22,10 @@ import mekanism.common.util.WorldUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -40,10 +43,10 @@ public class BuildCommand {
 
     public static final ArgumentBuilder<CommandSource, ?> COMMAND =
           Commands.literal("build")
-                .requires(cs -> cs.hasPermission(2) && cs.getEntity() instanceof ServerPlayerEntity)
+                .requires(cs -> cs.hasPermission(2) && cs.getEntity() instanceof ServerPlayer)
                 .then(Commands.literal("remove")
                       .executes(ctx -> {
-                          CommandSource source = ctx.getSource();
+                          var source = ctx.getSource();
                           BlockRayTraceResult result = MekanismUtils.rayTrace(source.getPlayerOrException(), 100);
                           if (result.getType() == RayTraceResult.Type.MISS) {
                               throw MISS.create();

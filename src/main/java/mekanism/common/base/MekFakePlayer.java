@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import mekanism.common.Mekanism;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
@@ -102,7 +103,7 @@ public class MekFakePlayer extends FakePlayer {
         });
     }
 
-    public static void releaseInstance(IWorld world) {
+    public static void releaseInstance(ServerWorld world) {
         // If the fake player has a reference to the world getting unloaded,
         // null out the fake player so that the world can unload
         MekFakePlayer actual = INSTANCE != null ? INSTANCE.get() : null;

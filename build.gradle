@@ -262,6 +262,11 @@ repositories {
         }
     }
 
+    maven {
+        name 'parchment'
+        url 'https://maven.parchmentmc.org'
+    }
+
     whenObjectAdded {//ForgeGradle adds these in an afterEvaluate, so we need to catch them as they're added and exclude mod artifacts/groups
         if (it instanceof MavenArtifactRepository) {
             def url = it.url.toString()
@@ -297,7 +302,8 @@ test {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
@@ -310,6 +316,9 @@ dependencies {
     testImplementation "org.quicktheories:quicktheories:${quicktheories_version}"
 
     compileOnly "org.jetbrains:annotations:${jb_annotations}"
+
+    modImplementation "curse.maven:forge-config-api-port-fabric-547434:3562302"
+    implementation 'com.electronwill.night-config:core:3.6.3'
 
     /*
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
