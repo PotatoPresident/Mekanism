@@ -13,7 +13,7 @@ import mekanism.common.lib.transmitter.TransmitterNetworkRegistry;
 import mekanism.common.network.BasePacketHandler;
 import mekanism.common.network.IMekanismPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import net.minecraftforge.network.NetworkEvent;
 
 public class PacketTransmitterUpdate implements IMekanismPacket {

@@ -12,7 +12,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -90,6 +90,6 @@ public abstract class ItemStackToFluidRecipe extends MekanismRecipe implements P
     @Override
     public void write(FriendlyByteBuf buffer) {
         input.write(buffer);
-        output.writeToPacket(buffer);
+        output.toBuffer(buffer);
     }
 }

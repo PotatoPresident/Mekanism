@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+
+import io.github.fabricators_of_create.porting_lib.transfer.item.IItemHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.inventory.IInventorySlot;

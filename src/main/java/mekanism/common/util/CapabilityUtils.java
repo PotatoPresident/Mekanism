@@ -2,6 +2,9 @@ package mekanism.common.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
+import io.github.fabricators_of_create.porting_lib.util.NonNullConsumer;
 import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;

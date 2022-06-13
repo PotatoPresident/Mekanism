@@ -1,0 +1,13 @@
+accessWidener	v1	named
+
+accessible field net/minecraft/client/resources/ClientPackSource BUILT_IN Lnet/minecraft/server/packs/metadata/pack/PackMetadataSection;
+accessible field net/minecraft/world/effect/MobEffectInstance hiddenEffect Lnet/minecraft/world/effect/MobEffectInstance;
+accessible field net/minecraft/world/entity/LivingEntity effectsDirty Z
+
+accessible method net/minecraft/world/level/biome/Biome getTemperature (Lnet/minecraft/core/BlockPos;)F
+accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V
+accessible method net/minecraft/world/effect/MobEffectInstance tickDownDuration ()I
+accessible method net/minecraft/world/effect/MobEffectInstance setDetailsFrom (Lnet/minecraft/world/effect/MobEffectInstance;)V
+accessible method net/minecraft/server/level/ServerPlayer nextContainerCounter ()V
+
+accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier

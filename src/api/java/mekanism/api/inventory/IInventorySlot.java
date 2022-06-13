@@ -2,6 +2,9 @@ package mekanism.api.inventory;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import dev.onyxstudios.cca.api.v3.component.Component;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
@@ -9,13 +12,10 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public interface IInventorySlot extends INBTSerializable<CompoundTag>, IContentsListener {
+public interface IInventorySlot extends Component, IContentsListener {
 
     /**
      * Returns the {@link ItemStack} in this {@link IInventorySlot}.

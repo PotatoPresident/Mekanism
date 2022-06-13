@@ -11,6 +11,7 @@ import mekanism.api.chemical.ChemicalType;
 import mekanism.api.datagen.recipe.MekanismRecipeBuilder;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -55,7 +56,7 @@ public class ChemicalCrystallizerRecipeBuilder extends MekanismRecipeBuilder<Che
      * @param consumer Finished Recipe Consumer.
      */
     public void build(Consumer<FinishedRecipe> consumer) {
-        build(consumer, output.getItem().getRegistryName());
+        build(consumer, Registry.ITEM.getKey(output.getItem()));
     }
 
     public class ChemicalCrystallizerRecipeResult extends RecipeResult {

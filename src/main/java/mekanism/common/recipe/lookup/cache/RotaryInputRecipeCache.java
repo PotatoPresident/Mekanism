@@ -12,7 +12,7 @@ import mekanism.common.recipe.MekanismRecipeType;
 import mekanism.common.recipe.lookup.cache.type.ChemicalInputCache;
 import mekanism.common.recipe.lookup.cache.type.FluidInputCache;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 /**
  * Similar in concept to {@link SingleInputRecipeCache} except specialized to handle Rotary Condensentrator recipes for the purposes of being able to handle both the gas

@@ -15,11 +15,10 @@ import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class RobitSkin extends ForgeRegistryEntry<RobitSkin> implements IRobitSkinProvider, IHasTranslationKey, IHasTextComponent {
+public class RobitSkin implements IRobitSkinProvider, IHasTranslationKey, IHasTextComponent {
 
     private final List<ResourceLocation> textures;
     private String translationKey;

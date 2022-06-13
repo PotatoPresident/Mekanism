@@ -1,12 +1,15 @@
 package mekanism.common.registration.impl;
 
 import javax.annotation.Nullable;
+
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
 import mekanism.api.text.ILangEntry;
 import mekanism.common.Mekanism;
 import mekanism.common.inventory.container.ContainerProvider;
 import mekanism.common.inventory.container.type.MekanismContainerType;
 import mekanism.common.inventory.container.type.MekanismItemContainerType;
 import mekanism.common.registration.WrappedRegistryObject;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -15,8 +18,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.RegistryObject;
 
 public class ContainerTypeRegistryObject<CONTAINER extends AbstractContainerMenu> extends WrappedRegistryObject<MenuType<CONTAINER>> {
 
@@ -43,7 +44,7 @@ public class ContainerTypeRegistryObject<CONTAINER extends AbstractContainerMenu
             provider = mekanismContainerType.create(object);
         }
         if (provider == null) {
-            Mekanism.logger.info("Unable to create container for type: {}", containerType.getRegistryName());
+            Mekanism.logger.info("Unable to create container for type: {}", Registry.MENU.getKey(containerType));
         }
         return provider == null ? null : new ContainerProvider(name, provider);
     }
@@ -61,7 +62,7 @@ public class ContainerTypeRegistryObject<CONTAINER extends AbstractContainerMenu
             provider = mekanismItemContainerType.create(hand, stack);
         }
         if (provider == null) {
-            Mekanism.logger.info("Unable to create container for type: {}", containerType.getRegistryName());
+            Mekanism.logger.info("Unable to create container for type: {}", Registry.MENU.getKey(containerType));
         }
         return provider == null ? null : new ContainerProvider(name, provider);
     }

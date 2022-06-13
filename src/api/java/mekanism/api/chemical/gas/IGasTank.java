@@ -20,7 +20,7 @@ public interface IGasTank extends IChemicalTank<Gas, GasStack>, IEmptyGasProvide
     }
 
     @Override
-    default void deserializeNBT(CompoundTag nbt) {
+    default void readFromNbt(CompoundTag nbt) {
         if (nbt.contains(NBTConstants.STORED, Tag.TAG_COMPOUND)) {
             setStackUnchecked(GasStack.readFromNBT(nbt.getCompound(NBTConstants.STORED)));
         }

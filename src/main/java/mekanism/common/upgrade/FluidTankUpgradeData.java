@@ -6,7 +6,7 @@ import mekanism.common.inventory.slot.OutputInventorySlot;
 import mekanism.common.tile.component.ITileComponent;
 import mekanism.common.tile.interfaces.IFluidContainerManager.ContainerEditMode;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class FluidTankUpgradeData implements IUpgradeData {
 

@@ -12,7 +12,7 @@ import mekanism.api.fluid.IMekanismFluidHandler;
 import mekanism.common.capabilities.DynamicHandler;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault

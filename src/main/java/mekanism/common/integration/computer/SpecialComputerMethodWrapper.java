@@ -7,7 +7,7 @@ import mekanism.api.heat.IHeatCapacitor;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.common.integration.computer.annotation.WrappingComputerMethod.WrappingComputerMethodIndex;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 /**
  * Helper class to hold classes that then can wrap one return type into multiple methods. Everything in this class must be public, static, and exist on both server and

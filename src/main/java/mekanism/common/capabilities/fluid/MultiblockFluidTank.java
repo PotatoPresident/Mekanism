@@ -13,7 +13,7 @@ import mekanism.api.annotations.NonNull;
 import mekanism.common.lib.multiblock.MultiblockData;
 import mekanism.common.tile.prefab.TileEntityMultiblock;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault

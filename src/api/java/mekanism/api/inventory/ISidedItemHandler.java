@@ -2,12 +2,12 @@ package mekanism.api.inventory;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import io.github.fabricators_of_create.porting_lib.transfer.item.IItemHandlerModifiable;
 import mekanism.api.Action;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 /**
  * A sided variant of {@link IItemHandlerModifiable}

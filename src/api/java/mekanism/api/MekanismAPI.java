@@ -2,6 +2,8 @@ package mekanism.api;
 
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
+
+import com.mojang.serialization.Lifecycle;
 import mekanism.api.chemical.gas.EmptyGas;
 import mekanism.api.chemical.gas.Gas;
 import mekanism.api.chemical.infuse.EmptyInfuseType;
@@ -15,13 +17,13 @@ import mekanism.api.gear.ModuleData;
 import mekanism.api.radiation.IRadiationManager;
 import mekanism.api.robit.RobitSkin;
 import mekanism.api.text.ITooltipHelper;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-import net.minecraftforge.registries.RegistryManager;
+import net.minecraftforge.common.UsernameCache;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,33 +45,36 @@ public class MekanismAPI {
     public static final Logger logger = LogManager.getLogger(MEKANISM_MODID + "_api");
 
     @Nonnull
-    private static <T extends IForgeRegistryEntry<T>> Lazy<ResourceKey<? extends Registry<T>>> registryKey(
-          @SuppressWarnings("unused") @Nonnull Class<T> compileTimeTypeValidator, @Nonnull String path) {
-        return Lazy.of(() -> ResourceKey.createRegistryKey(new ResourceLocation(MEKANISM_MODID, path)));
+    private static <T> ResourceKey<Registry<T>> registryKey(
+            @SuppressWarnings("unused") @Nonnull Class<T> compileTimeTypeValidator,
+            @Nonnull String path) {
+        return ResourceKey.createRegistryKey(new ResourceLocation(MEKANISM_MODID, path));
     }
 
     //Note: These fields are not directly exposed and are instead exposed via getters as they need to be lazy so that they
     // don't end up causing a crash while running tests due to class loading
     @Nonnull
-    private static final Lazy<ResourceKey<? extends Registry<Gas>>> GAS_REGISTRY_NAME = registryKey(Gas.class, "gas");
+    private static final ResourceKey<? extends Registry<Gas>> GAS_REGISTRY_NAME = registryKey(Gas.class, "gas");
     @Nonnull
-    private static final Lazy<ResourceKey<? extends Registry<InfuseType>>> INFUSE_TYPE_REGISTRY_NAME = registryKey(InfuseType.class, "infuse_type");
+    private static final ResourceKey<? extends Registry<InfuseType>> INFUSE_TYPE_REGISTRY_NAME = registryKey(InfuseType.class, "infuse_type");
     @Nonnull
-    private static final Lazy<ResourceKey<? extends Registry<Pigment>>> PIGMENT_REGISTRY_NAME = registryKey(Pigment.class, "pigment");
+    private static final ResourceKey<? extends Registry<Pigment>> PIGMENT_REGISTRY_NAME = registryKey(Pigment.class, "pigment");
     @Nonnull
-    private static final Lazy<ResourceKey<? extends Registry<Slurry>>> SLURRY_REGISTRY_NAME = registryKey(Slurry.class, "slurry");
+    private static final ResourceKey<? extends Registry<Slurry>> SLURRY_REGISTRY_NAME = registryKey(Slurry.class, "slurry");
     @Nonnull
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static final Lazy<ResourceKey<? extends Registry<ModuleData<?>>>> MODULE_REGISTRY_NAME = registryKey((Class) ModuleData.class, "module");
+    private static final ResourceKey<? extends Registry<ModuleData<?>>> MODULE_REGISTRY_NAME = registryKey((Class) ModuleData.class, "module");
     @Nonnull
-    private static final Lazy<ResourceKey<? extends Registry<RobitSkin>>> ROBIT_SKIN_REGISTRY_NAME = registryKey(RobitSkin.class, "robit_skin");
+    private static final ResourceKey<? extends Registry<RobitSkin>> ROBIT_SKIN_REGISTRY_NAME = registryKey(RobitSkin.class, "robit_skin");
 
-    private static IForgeRegistry<Gas> GAS_REGISTRY;
-    private static IForgeRegistry<InfuseType> INFUSE_TYPE_REGISTRY;
-    private static IForgeRegistry<Pigment> PIGMENT_REGISTRY;
-    private static IForgeRegistry<Slurry> SLURRY_REGISTRY;
-    private static IForgeRegistry<ModuleData<?>> MODULE_REGISTRY;
-    private static IForgeRegistry<RobitSkin> ROBIT_SKIN_REGISTRY;
+    private static Registry<Gas> GAS_REGISTRY = FabricRegistryBuilder.createSimple(Gas.class, GAS_REGISTRY_NAME.location()).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+    private static Registry<InfuseType> INFUSE_TYPE_REGISTRY = FabricRegistryBuilder.createSimple(InfuseType.class, INFUSE_TYPE_REGISTRY_NAME.location()).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+    private static Registry<Pigment> PIGMENT_REGISTRY = FabricRegistryBuilder.createSimple(Pigment.class, PIGMENT_REGISTRY_NAME.location()).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+    private static Registry<Slurry> SLURRY_REGISTRY = FabricRegistryBuilder.createSimple(Slurry.class, SLURRY_REGISTRY_NAME.location()).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+    private static Registry<ModuleData<?>> MODULE_REGISTRY = FabricRegistryBuilder.from(
+            new MappedRegistry<ModuleData<?>>(MODULE_REGISTRY_NAME, Lifecycle.stable(), null)
+    ).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+    private static Registry<RobitSkin> ROBIT_SKIN_REGISTRY = FabricRegistryBuilder.createSimple(RobitSkin.class, GAS_REGISTRY_NAME.location()).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     private static IModuleHelper MODULE_HELPER;
     private static IRadiationManager RADIATION_MANAGER;
     private static ITooltipHelper TOOLTIP_HELPER;
@@ -108,7 +113,7 @@ public class MekanismAPI {
      */
     @Nonnull
     public static ResourceKey<? extends Registry<Gas>> gasRegistryName() {
-        return GAS_REGISTRY_NAME.get();
+        return GAS_REGISTRY_NAME;
     }
 
     /**
@@ -121,7 +126,7 @@ public class MekanismAPI {
      */
     @Nonnull
     public static ResourceKey<? extends Registry<InfuseType>> infuseTypeRegistryName() {
-        return INFUSE_TYPE_REGISTRY_NAME.get();
+        return INFUSE_TYPE_REGISTRY_NAME;
     }
 
     /**
@@ -134,7 +139,7 @@ public class MekanismAPI {
      */
     @Nonnull
     public static ResourceKey<? extends Registry<Pigment>> pigmentRegistryName() {
-        return PIGMENT_REGISTRY_NAME.get();
+        return PIGMENT_REGISTRY_NAME;
     }
 
     /**
@@ -147,7 +152,7 @@ public class MekanismAPI {
      */
     @Nonnull
     public static ResourceKey<? extends Registry<Slurry>> slurryRegistryName() {
-        return SLURRY_REGISTRY_NAME.get();
+        return SLURRY_REGISTRY_NAME;
     }
 
     /**
@@ -160,7 +165,7 @@ public class MekanismAPI {
      */
     @Nonnull
     public static ResourceKey<? extends Registry<ModuleData<?>>> moduleRegistryName() {
-        return MODULE_REGISTRY_NAME.get();
+        return MODULE_REGISTRY_NAME;
     }
 
     /**
@@ -173,7 +178,7 @@ public class MekanismAPI {
      */
     @Nonnull
     public static ResourceKey<? extends Registry<RobitSkin>> robitSkinRegistryName() {
-        return ROBIT_SKIN_REGISTRY_NAME.get();
+        return ROBIT_SKIN_REGISTRY_NAME;
     }
 
     /**
@@ -186,10 +191,7 @@ public class MekanismAPI {
      * @see #gasRegistryName()
      */
     @Nonnull
-    public static IForgeRegistry<Gas> gasRegistry() {
-        if (GAS_REGISTRY == null) {
-            GAS_REGISTRY = RegistryManager.ACTIVE.getRegistry(gasRegistryName());
-        }
+    public static Registry<Gas> gasRegistry() {
         return GAS_REGISTRY;
     }
 
@@ -204,10 +206,7 @@ public class MekanismAPI {
      * @see #infuseTypeRegistryName()
      */
     @Nonnull
-    public static IForgeRegistry<InfuseType> infuseTypeRegistry() {
-        if (INFUSE_TYPE_REGISTRY == null) {
-            INFUSE_TYPE_REGISTRY = RegistryManager.ACTIVE.getRegistry(infuseTypeRegistryName());
-        }
+    public static Registry<InfuseType> infuseTypeRegistry() {
         return INFUSE_TYPE_REGISTRY;
     }
 
@@ -222,10 +221,7 @@ public class MekanismAPI {
      * @see #pigmentRegistryName()
      */
     @Nonnull
-    public static IForgeRegistry<Pigment> pigmentRegistry() {
-        if (PIGMENT_REGISTRY == null) {
-            PIGMENT_REGISTRY = RegistryManager.ACTIVE.getRegistry(pigmentRegistryName());
-        }
+    public static Registry<Pigment> pigmentRegistry() {
         return PIGMENT_REGISTRY;
     }
 
@@ -239,10 +235,7 @@ public class MekanismAPI {
      * @see #slurryRegistryName()
      */
     @Nonnull
-    public static IForgeRegistry<Slurry> slurryRegistry() {
-        if (SLURRY_REGISTRY == null) {
-            SLURRY_REGISTRY = RegistryManager.ACTIVE.getRegistry(slurryRegistryName());
-        }
+    public static Registry<Slurry> slurryRegistry() {
         return SLURRY_REGISTRY;
     }
 
@@ -257,10 +250,7 @@ public class MekanismAPI {
      * @see #moduleRegistryName()
      */
     @Nonnull
-    public static IForgeRegistry<ModuleData<?>> moduleRegistry() {
-        if (MODULE_REGISTRY == null) {
-            MODULE_REGISTRY = RegistryManager.ACTIVE.getRegistry(moduleRegistryName());
-        }
+    public static Registry<ModuleData<?>> moduleRegistry() {
         return MODULE_REGISTRY;
     }
 
@@ -275,10 +265,7 @@ public class MekanismAPI {
      * @see #robitSkinRegistryName()
      */
     @Nonnull
-    public static IForgeRegistry<RobitSkin> robitSkinRegistry() {
-        if (ROBIT_SKIN_REGISTRY == null) {
-            ROBIT_SKIN_REGISTRY = RegistryManager.ACTIVE.getRegistry(robitSkinRegistryName());
-        }
+    public static Registry<RobitSkin> robitSkinRegistry() {
         return ROBIT_SKIN_REGISTRY;
     }
 

@@ -11,7 +11,7 @@ public class RobitSkinDeferredRegister extends WrappedDeferredRegister<RobitSkin
     private final String modid;
 
     public RobitSkinDeferredRegister(String modid) {
-        super(modid, MekanismAPI.robitSkinRegistryName());
+        super(modid, MekanismAPI.robitSkinRegistry());
         this.modid = modid;
     }
 
@@ -35,7 +35,7 @@ public class RobitSkinDeferredRegister extends WrappedDeferredRegister<RobitSkin
         return register(name, () -> new RobitSkin(textures));
     }
 
-    public <ROBIT_SKIN extends RobitSkin> RobitSkinRegistryObject<ROBIT_SKIN> register(String name, Supplier<? extends ROBIT_SKIN> sup) {
+    public <ROBIT_SKIN extends RobitSkin> RobitSkinRegistryObject<ROBIT_SKIN> register(String name, Supplier<ROBIT_SKIN> sup) {
         return register(name, sup, RobitSkinRegistryObject::new);
     }
 }

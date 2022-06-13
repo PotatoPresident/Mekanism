@@ -18,7 +18,7 @@ import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.text.InputValidator;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public abstract class GuiModIDFilter<FILTER extends IModIDFilter<FILTER>, TILE extends TileEntityMekanism & ITileFilterHolder<? super FILTER>>

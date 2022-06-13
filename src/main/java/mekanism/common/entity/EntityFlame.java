@@ -51,7 +51,6 @@ import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.network.NetworkHooks;
 
 public class EntityFlame extends Projectile implements IEntityAdditionalSpawnData {
 

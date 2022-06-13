@@ -10,7 +10,7 @@ import moze_intel.projecte.api.mapper.recipe.RecipeTypeMapper;
 import moze_intel.projecte.api.nss.NormalizedSimpleStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @RecipeTypeMapper
 public class FluidToFluidRecipeMapper implements IRecipeTypeMapper {

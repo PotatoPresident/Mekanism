@@ -2,10 +2,13 @@ package mekanism.common.inventory.container.type;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import io.github.fabricators_of_create.porting_lib.util.EnvExecutor;
 import mekanism.common.inventory.container.entity.IEntityContainer;
 import mekanism.common.inventory.container.type.MekanismContainerType.IMekanismContainerFactory;
 import mekanism.common.tile.base.TileEntityMekanism;
 import mekanism.common.util.WorldUtils;
+import net.fabricmc.api.EnvType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,34 +16,32 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.IContainerFactory;
 
 public class MekanismContainerType<T, CONTAINER extends AbstractContainerMenu> extends BaseMekanismContainerType<T, CONTAINER, IMekanismContainerFactory<T, CONTAINER>> {
 
     public static <TILE extends TileEntityMekanism, CONTAINER extends AbstractContainerMenu> MekanismContainerType<TILE, CONTAINER> tile(Class<TILE> type,
           IMekanismContainerFactory<TILE, CONTAINER> constructor) {
-        return new MekanismContainerType<>(type, constructor, (id, inv, buf) -> constructor.create(id, inv, getTileFromBuf(buf, type)));
+        return new MekanismContainerType<>(type, constructor, (id, inv) -> constructor.create(id, inv, getTileFromBuf(buf, type)));
     }
 
     public static <TILE extends TileEntityMekanism, CONTAINER extends AbstractContainerMenu> MekanismContainerType<TILE, CONTAINER> tile(Class<TILE> type,
           IMekanismSidedContainerFactory<TILE, CONTAINER> constructor) {
-        return new MekanismContainerType<>(type, constructor, (id, inv, buf) -> constructor.create(id, inv, getTileFromBuf(buf, type), true));
+        return new MekanismContainerType<>(type, constructor, (id, inv) -> constructor.create(id, inv, getTileFromBuf(buf, type), true));
     }
 
     public static <ENTITY extends Entity, CONTAINER extends AbstractContainerMenu & IEntityContainer<ENTITY>> MekanismContainerType<ENTITY, CONTAINER> entity(Class<ENTITY> type,
           IMekanismContainerFactory<ENTITY, CONTAINER> constructor) {
-        return new MekanismContainerType<>(type, constructor, (id, inv, buf) -> constructor.create(id, inv, getEntityFromBuf(buf, type)));
+        return new MekanismContainerType<>(type, constructor, (id, inv) -> constructor.create(id, inv, getEntityFromBuf(buf, type)));
     }
 
     public static <ENTITY extends Entity, CONTAINER extends AbstractContainerMenu & IEntityContainer<ENTITY>> MekanismContainerType<ENTITY, CONTAINER> entity(Class<ENTITY> type,
           IMekanismSidedContainerFactory<ENTITY, CONTAINER> constructor) {
-        return new MekanismContainerType<>(type, constructor, (id, inv, buf) -> constructor.create(id, inv, getEntityFromBuf(buf, type), true));
+        return new MekanismContainerType<>(type, constructor, (id, inv) -> constructor.create(id, inv, getEntityFromBuf(buf, type), true));
     }
 
-    protected MekanismContainerType(Class<T> type, IMekanismContainerFactory<T, CONTAINER> mekanismConstructor, IContainerFactory<CONTAINER> constructor) {
+    protected MekanismContainerType(Class<T> type, IMekanismContainerFactory<T, CONTAINER> mekanismConstructor, MenuType.MenuSupplier<CONTAINER> constructor) {
         super(type, mekanismConstructor, constructor);
     }
 
@@ -66,7 +67,7 @@ public class MekanismContainerType<T, CONTAINER extends AbstractContainerMenu> e
         if (buf == null) {
             throw new IllegalArgumentException("Null packet buffer");
         }
-        return DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> {
+        return EnvExecutor.unsafeRunForDist(EnvType.CLIENT, () -> () -> {
             BlockPos pos = buf.readBlockPos();
             TILE tile = WorldUtils.getTileEntity(type, Minecraft.getInstance().level, pos);
             if (tile == null) {
@@ -82,7 +83,7 @@ public class MekanismContainerType<T, CONTAINER extends AbstractContainerMenu> e
         if (buf == null) {
             throw new IllegalArgumentException("Null packet buffer");
         }
-        return DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> {
+        return EnvExecutor.unsafeRunForDist(EnvType.CLIENT, () -> () -> {
             if (Minecraft.getInstance().level == null) {
                 throw new IllegalStateException("Client world is null.");
             }

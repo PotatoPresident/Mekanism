@@ -14,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion.BlockInteraction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 public class EntityObsidianTNT extends PrimedTnt {
 

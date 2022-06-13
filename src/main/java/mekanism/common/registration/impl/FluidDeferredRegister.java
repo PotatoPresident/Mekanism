@@ -5,10 +5,14 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import javax.annotation.Nonnull;
+
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidAttributes;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
 import mekanism.common.Mekanism;
 import mekanism.common.base.IChemicalConstant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
+import net.minecraft.core.Registry;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.resources.ResourceLocation;
@@ -26,14 +30,6 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.fluids.FluidAttributes.Builder;
-import net.minecraftforge.fluids.ForgeFlowingFluid;
-import net.minecraftforge.fluids.ForgeFlowingFluid.Flowing;
-import net.minecraftforge.fluids.ForgeFlowingFluid.Source;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class FluidDeferredRegister {
 
@@ -71,15 +67,15 @@ public class FluidDeferredRegister {
 
     private final String modid;
 
-    private final DeferredRegister<Fluid> fluidRegister;
-    private final DeferredRegister<Block> blockRegister;
-    private final DeferredRegister<Item> itemRegister;
+    private final LazyRegistrar<Fluid> fluidRegister;
+    private final LazyRegistrar<Block> blockRegister;
+    private final LazyRegistrar<Item> itemRegister;
 
     public FluidDeferredRegister(String modid) {
         this.modid = modid;
-        blockRegister = DeferredRegister.create(ForgeRegistries.BLOCKS, modid);
-        fluidRegister = DeferredRegister.create(ForgeRegistries.FLUIDS, modid);
-        itemRegister = DeferredRegister.create(ForgeRegistries.ITEMS, modid);
+        blockRegister = LazyRegistrar.create(Registry.BLOCK, modid);
+        fluidRegister = LazyRegistrar.create(Registry.FLUID, modid);
+        itemRegister = LazyRegistrar.create(Registry.ITEM, modid);
     }
 
     public FluidRegistryObject<Source, Flowing, LiquidBlock, BucketItem> registerLiquidChemical(IChemicalConstant constants) {

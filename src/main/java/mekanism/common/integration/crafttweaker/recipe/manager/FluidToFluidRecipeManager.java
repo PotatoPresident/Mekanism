@@ -10,7 +10,7 @@ import mekanism.common.integration.crafttweaker.CrTUtils;
 import mekanism.common.recipe.MekanismRecipeType;
 import mekanism.common.recipe.impl.FluidToFluidIRecipe;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import org.openzen.zencode.java.ZenCodeType;
 
 @ZenRegister

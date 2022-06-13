@@ -3,13 +3,13 @@ package mekanism.common.registration;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
 import mekanism.api.annotations.FieldsAreNonnullByDefault;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-import net.minecraftforge.registries.RegistryObject;
 
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault
-public class WrappedRegistryObject<T extends IForgeRegistryEntry<? super T>> implements Supplier<T>, INamedEntry {
+public class WrappedRegistryObject<T> implements Supplier<T>, INamedEntry {
 
     protected RegistryObject<T> registryObject;
 

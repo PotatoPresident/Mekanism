@@ -7,7 +7,7 @@ import mekanism.common.content.network.FluidNetwork;
 import mekanism.common.content.network.transmitter.BoxedPressurizedTube;
 import mekanism.common.content.network.transmitter.MechanicalPipe;
 import mekanism.common.content.network.transmitter.Transmitter;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class CompatibleTransmitterValidator<ACCEPTOR, NETWORK extends DynamicNetwork<ACCEPTOR, NETWORK, TRANSMITTER>,

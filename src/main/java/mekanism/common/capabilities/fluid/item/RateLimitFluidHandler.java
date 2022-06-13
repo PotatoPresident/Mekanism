@@ -18,7 +18,7 @@ import mekanism.common.capabilities.fluid.BasicFluidTank;
 import mekanism.common.capabilities.fluid.VariableCapacityFluidTank;
 import mekanism.common.tier.FluidTankTier;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault

@@ -9,7 +9,7 @@ import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.recipes.RotaryRecipe;
 import mekanism.api.recipes.inputs.IInputHandler;
 import mekanism.api.recipes.outputs.IOutputHandler;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 /**
  * Base class to help implement handling of rotary recipes.

@@ -1,6 +1,8 @@
 package mekanism.api.providers;
 
 import javax.annotation.Nonnull;
+
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -15,7 +17,7 @@ public interface IEntityTypeProvider extends IBaseProvider {
 
     @Override
     default ResourceLocation getRegistryName() {
-        return getEntityType().getRegistryName();
+        return Registry.ENTITY_TYPE.getKey(getEntityType());
     }
 
     @Override

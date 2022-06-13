@@ -18,7 +18,7 @@ import mekanism.api.recipes.cache.CachedRecipe.OperationTracker;
 import mekanism.api.recipes.cache.CachedRecipe.OperationTracker.RecipeError;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -273,10 +273,10 @@ public class OutputHelper {
             FluidStack maxOutput = new FluidStack(toOutput, Integer.MAX_VALUE);
             //Then simulate filling the fluid tank, so we can see how much actually can fit
             FluidStack remainder = tank.insert(maxOutput, Action.SIMULATE, AutomationType.INTERNAL);
-            int amountUsed = maxOutput.getAmount() - remainder.getAmount();
+            long amountUsed = maxOutput.getAmount() - remainder.getAmount();
             //Divide the amount we can actually use by the amount one output operation is equal to, capping it at the max we were told about
-            int operations = amountUsed / toOutput.getAmount();
-            tracker.updateOperations(operations);
+            long operations = amountUsed / toOutput.getAmount();
+            tracker.updateOperations((int) operations);
             if (operations == 0) {
                 if (amountUsed == 0 && tank.getNeeded() > 0) {
                     tracker.addError(RecipeError.INPUT_DOESNT_PRODUCE_OUTPUT);

@@ -2,6 +2,8 @@ package mekanism.api.text;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
@@ -16,7 +18,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
 
 public class TextComponentUtil {
 
@@ -78,9 +79,9 @@ public class TextComponentUtil {
             } else if (component instanceof ItemStack stack) {
                 current = stack.getHoverName().copy();
             } else if (component instanceof FluidStack stack) {
-                current = translate(stack.getTranslationKey());
+                current = (TranslatableComponent) stack.getDisplayName();
             } else if (component instanceof Fluid fluid) {
-                current = translate(fluid.getAttributes().getTranslationKey());
+                current = translate(fluid.getBucket().getDescriptionId());
             } else if (component instanceof Direction direction) {
                 current = getTranslatedDirection(direction);
             } else {
@@ -183,9 +184,9 @@ public class TextComponentUtil {
             } else if (component instanceof ItemStack stack) {
                 current = stack.getHoverName().copy();
             } else if (component instanceof FluidStack stack) {
-                current = translate(stack.getTranslationKey());
+                current = (TranslatableComponent) stack.getDisplayName();
             } else if (component instanceof Fluid fluid) {
-                current = translate(fluid.getAttributes().getTranslationKey());
+                current = translate(fluid.getBucket().getDescriptionId());
             } else if (component instanceof Direction direction) {
                 current = getTranslatedDirection(direction);
             }

@@ -3,8 +3,11 @@ package mekanism.api.recipes;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiPredicate;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import mekanism.api.TriPredicate;
 import mekanism.api.annotations.FieldsAreNonnullByDefault;
 import mekanism.api.annotations.NonNull;
 import mekanism.api.chemical.gas.GasStack;
@@ -16,8 +19,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.TriPredicate;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import org.jetbrains.annotations.Contract;
 
 /**

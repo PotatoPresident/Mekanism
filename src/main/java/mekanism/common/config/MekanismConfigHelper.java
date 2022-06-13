@@ -1,9 +1,11 @@
 package mekanism.common.config;
 
-import java.nio.file.Path;
 import mekanism.common.Mekanism;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.minecraftforge.api.ModLoadingContext;
+
+import java.nio.file.Path;
 
 public class MekanismConfigHelper {
 
@@ -13,7 +15,7 @@ public class MekanismConfigHelper {
     public static final Path CONFIG_DIR;
 
     static {
-        CONFIG_DIR = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(Mekanism.MOD_NAME), Mekanism.MOD_NAME);
+        CONFIG_DIR = FabricLoader.getInstance().getConfigDir().resolve(Mekanism.MOD_NAME);
     }
 
     /**
@@ -22,7 +24,7 @@ public class MekanismConfigHelper {
     public static void registerConfig(ModContainer modContainer, IMekanismConfig config) {
         MekanismModConfig modConfig = new MekanismModConfig(modContainer, config);
         if (config.addToContainer()) {
-            modContainer.addConfig(modConfig);
+            ModLoadingContext.registerConfig(modContainer.getMetadata().getId(), config.getConfigType(), modConfig.getSpec());
         }
     }
 }

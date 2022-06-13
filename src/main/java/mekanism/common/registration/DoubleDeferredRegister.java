@@ -3,35 +3,29 @@ package mekanism.common.registration;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-import net.minecraftforge.registries.RegistryObject;
 
-public class DoubleDeferredRegister<PRIMARY extends IForgeRegistryEntry<PRIMARY>, SECONDARY extends IForgeRegistryEntry<SECONDARY>> {
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
+import net.minecraft.core.Registry;
 
-    private final DeferredRegister<PRIMARY> primaryRegister;
-    private final DeferredRegister<SECONDARY> secondaryRegister;
+public class DoubleDeferredRegister<PRIMARY, SECONDARY> {
 
-    public DoubleDeferredRegister(String modid, IForgeRegistry<PRIMARY> primaryRegistry, IForgeRegistry<SECONDARY> secondaryRegistry) {
-        primaryRegister = DeferredRegister.create(primaryRegistry, modid);
-        secondaryRegister = DeferredRegister.create(secondaryRegistry, modid);
+    private final LazyRegistrar<PRIMARY> primaryRegister;
+    private final LazyRegistrar<SECONDARY> secondaryRegister;
+
+    public DoubleDeferredRegister(String modid, Registry<PRIMARY> primaryRegistry, Registry<SECONDARY> secondaryRegistry) {
+        primaryRegister = LazyRegistrar.create(primaryRegistry, modid);
+        secondaryRegister = LazyRegistrar.create(secondaryRegistry, modid);
     }
 
-    public <P extends PRIMARY, S extends SECONDARY, W extends DoubleWrappedRegistryObject<P, S>> W register(String name, Supplier<? extends P> primarySupplier,
-          Supplier<? extends S> secondarySupplier, BiFunction<RegistryObject<P>, RegistryObject<S>, W> objectWrapper) {
+    public <P extends PRIMARY, S extends SECONDARY, W extends DoubleWrappedRegistryObject<P, S>> W register(String name, Supplier<P> primarySupplier,
+          Supplier<S> secondarySupplier, BiFunction<RegistryObject<P>, RegistryObject<S>, W> objectWrapper) {
         return objectWrapper.apply(primaryRegister.register(name, primarySupplier), secondaryRegister.register(name, secondarySupplier));
     }
 
-    public <P extends PRIMARY, S extends SECONDARY, W extends DoubleWrappedRegistryObject<P, S>> W register(String name, Supplier<? extends P> primarySupplier,
+    public <P extends PRIMARY, S extends SECONDARY, W extends DoubleWrappedRegistryObject<P, S>> W register(String name, Supplier<P> primarySupplier,
           Function<P, S> secondarySupplier, BiFunction<RegistryObject<P>, RegistryObject<S>, W> objectWrapper) {
         RegistryObject<P> primaryObject = primaryRegister.register(name, primarySupplier);
         return objectWrapper.apply(primaryObject, secondaryRegister.register(name, () -> secondarySupplier.apply(primaryObject.get())));
-    }
-
-    public void register(IEventBus bus) {
-        primaryRegister.register(bus);
-        secondaryRegister.register(bus);
     }
 }

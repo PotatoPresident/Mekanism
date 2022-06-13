@@ -1,7 +1,7 @@
 package mekanism.api.recipes.ingredients;
 
 import mekanism.api.annotations.NonNull;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 /**
  * Base implementation for how Mekanism handle's FluidStack Ingredients.

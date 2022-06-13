@@ -2,28 +2,9 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import mekanism.MergeJars
 
-buildscript {
-    repositories {
-        maven {
-            name 'thiakil'
-            url "https://maven.thiakil.com"
-        }
-        maven {
-            name "forge"
-            url "https://maven.minecraftforge.net/"
-        }
-        maven {
-            name 'parchment'
-            url 'https://maven.parchmentmc.org'
-        }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
-    }
-}
-
 plugins {
+    id 'fabric-loom' version '0.11.+'
+    id 'io.github.juuxel.loom-quiltflower' version '1.6.1'
     id 'org.ajoberstar.grgit' version '4.1.1'
     id "com.matthewprenger.cursegradle" version '1.4.0'
     id 'java'
@@ -31,9 +12,6 @@ plugins {
     id 'idea'
     id 'maven-publish'
 }
-
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 wrapper {
     //Define wrapper values here so as to not have to always do so when updating gradlew.properties
@@ -58,6 +36,10 @@ sourceSets {
     api {
         //The API has no resources
         resources.srcDirs = []
+
+        // TODO make sure this is right?
+        compileClasspath += main.compileClasspath
+        //runtimeClasspath += main.output + main.runtimeClasspath
     }
     main {
         resources {
@@ -122,20 +104,22 @@ def setupDataGenSourceSet(SourceSet datagenSourceSet, SourceSet baseSourceSet, S
 }
 
 configurations {
-    //Make sure all our sub source set stuff extends the proper base methods so that
-    // they can see all the dependencies we have in dependencies including forge
-    extendConfigurations(implementation, apiImplementation, testImplementation, datagenmainImplementation)
-    extendConfigurations(compileOnly, apiCompileOnly, testCompileOnly, datagenmainCompileOnly)
-    extendConfigurations(runtimeOnly, apiRuntimeOnly, datagenmainRuntimeOnly)
-    //Extend configurations for alternate modules. First by making the implementation, compileOnly, runtimeOnly equivalents
-    // for those modules extend the main ones, and then by making the corresponding ones for datagen for the module extend those.
-    // This way if we add a dependency/integration in a submodule instead of the main module of Mekanism, the datagen of the corresponding
-    // module will be able to properly access the dependency
-    for (def name : ["additions", "defense", "generators", "tools"]) {
-        maybeCreate("datagen${name}Implementation").extendsFrom(maybeCreate("${name}Implementation").extendsFrom(implementation))
-        maybeCreate("datagen${name}CompileOnly").extendsFrom(maybeCreate("${name}CompileOnly").extendsFrom(compileOnly))
-        maybeCreate("datagen${name}RuntimeOnly").extendsFrom(maybeCreate("${name}RuntimeOnly").extendsFrom(runtimeOnly))
-    }
+    apiCompile.extendsFrom(compileClasspath)
+
+//    //Make sure all our sub source set stuff extends the proper base methods so that
+//    // they can see all the dependencies we have in dependencies including forge
+//    extendConfigurations(implementation, apiImplementation, testImplementation, datagenmainImplementation)
+//    extendConfigurations(compileOnly, apiCompile, apiCompileOnly, testCompileOnly, datagenmainCompileOnly)
+//    extendConfigurations(runtimeOnly, apiRuntimeOnly, datagenmainRuntimeOnly)
+//    //Extend configurations for alternate modules. First by making the implementation, compileOnly, runtimeOnly equivalents
+//    // for those modules extend the main ones, and then by making the corresponding ones for datagen for the module extend those.
+//    // This way if we add a dependency/integration in a submodule instead of the main module of Mekanism, the datagen of the corresponding
+//    // module will be able to properly access the dependency
+//    for (def name : ["additions", "defense", "generators", "tools"]) {
+//        maybeCreate("datagen${name}Implementation").extendsFrom(maybeCreate("${name}Implementation").extendsFrom(implementation))
+//        maybeCreate("datagen${name}CompileOnly").extendsFrom(maybeCreate("${name}CompileOnly").extendsFrom(compileOnly))
+//        maybeCreate("datagen${name}RuntimeOnly").extendsFrom(maybeCreate("${name}RuntimeOnly").extendsFrom(runtimeOnly))
+//    }
 }
 
 static void extendConfigurations(Configuration base, Configuration... configurations) {
@@ -145,8 +129,8 @@ static void extendConfigurations(Configuration base, Configuration... configurat
 }
 
 ext {
-    versionProperties = ["version"           : mod_version, "mc_version": minecraft_version_range, "forge_version": forge_version_range,
-                         "loader_version"    : loader_version_range, "crafttweaker_version": crafttweaker_version_range, "jei_version": jei_version_range,
+    versionProperties = ["version"           : mod_version, "mc_version": minecraft_version_range, "fabric_version": fabric_version_range,
+                         "loader_version"    : loader_version, "crafttweaker_version": crafttweaker_version_range, "jei_version": jei_version_range,
                          "oc2_version": oc2_version_range]
     jsonPatterns = ["**/*.json", "**/*.mcmeta"]
 }
@@ -194,118 +178,46 @@ version = "${minecraft_version}-${mod_version}." + (System.env.BUILD_NUMBER ?: "
 archivesBaseName = "Mekanism"
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-minecraft {
+loom {
+    /* TODO mappings
     mappings channel: "${mappings_channel}", version: "${mappings_version}"
 
     accessTransformers.from(file('src/main/resources/META-INF/accesstransformer.cfg'),
             file('src/additions/resources/META-INF/accesstransformer.cfg'))
+     */
+
+    accessWidener.set(file("src/main/resources/mekanism.accesswidener"))
 
     runs {
-        client {
-            workingDirectory file("run")
-            //We aren't a multi-project config so we can disable the forced exit to allow gradle run tasks to stop gracefully
-            forceExit = false
-            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            //The below if statements are to add args to your gradle.properties file in user home
-            // (DO NOT add them directly to the gradle.properties file for this project)
-            // Setting the below properties allows use of your normal Minecraft account in the
-            // dev environment including having your skin load. Each property also has a comment
-            // explaining what information to set the value to/format it expects
-            // One thing to note is because of the caching that goes on, after changing these
-            // variables, you need to refresh the project and rerun genIntellijRuns/genEclipseRuns
-            if (project.hasProperty('mc_uuid')) {
-                //Your uuid without any dashes in the middle
-                args '--uuid', project.getProperty('mc_uuid')
-            }
-            if (project.hasProperty('mc_username')) {
-                //Your username/display name, this is the name that shows up in chat
-                // Note: This is not your email, even if you have a Mojang account
-                args '--username', project.getProperty('mc_username')
-            }
-            if (project.hasProperty('mc_accessToken')) {
-                //Your access token, you can find it in your '.minecraft/launcher_accounts.json' file
-                args '--accessToken', project.getProperty('mc_accessToken')
-            }
-            if (project.hasProperty('forge_force_ansi')) {
-                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
-                // or eclipse's plugin that adds support for ansi escape in console
-                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
-            }
-
-            mods {
-                mekanism.sources((SourceSet[]) [sourceSets.main, sourceSets.api])
-                mekanismadditions.source((SourceSet) sourceSets.additions)
-                mekanismdefense.source((SourceSet) sourceSets.defense)
-                mekanismgenerators.source((SourceSet) sourceSets.generators)
-                mekanismtools.source((SourceSet) sourceSets.tools)
-            }
-        }
-
-        server {
-            workingDirectory file("run")
-            //We aren't a multi-project config so we can disable the forced exit to allow gradle run tasks to stop gracefully
-            forceExit = false
-            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            if (project.hasProperty('forge_force_ansi')) {
-                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
-                // or eclipse's plugin that adds support for ansi escape in console
-                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
-            }
-
-            mods {
-                mekanism.sources((SourceSet[]) [sourceSets.main, sourceSets.api])
-                mekanismadditions.source((SourceSet) sourceSets.additions)
-                mekanismdefense.source((SourceSet) sourceSets.defense)
-                mekanismgenerators.source((SourceSet) sourceSets.generators)
-                mekanismtools.source((SourceSet) sourceSets.tools)
-            }
-        }
-
-        data {
-            workingDirectory file("run")
-            environment 'target', 'fmluserdevdata'
-            //We aren't a multi-project config so we can disable the forced exit to allow gradle run tasks to stop gracefully
-            forceExit = false
-            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            if (project.hasProperty('forge_force_ansi')) {
-                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
-                // or eclipse's plugin that adds support for ansi escape in console
-                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
-            }
-
-            args '--all', '--output', file('src/datagen/generated/'),
-                    '--mod', 'mekanism',
-                    '--existing', file('src/main/resources/'),
-                    '--mod', 'mekanismadditions',
-                    '--existing', file('src/additions/resources/'),
-                    '--mod', 'mekanismdefense',
-                    '--existing', file('src/defense/resources/'),
-                    '--mod', 'mekanismgenerators',
-                    '--existing', file('src/generators/resources/'),
-                    '--mod', 'mekanismtools',
-                    '--existing', file('src/tools/resources/')
-
-            mods {
-                mekanism.sources((SourceSet[]) [sourceSets.main, sourceSets.api, sourceSets.datagenmain])
-                mekanismadditions.sources((SourceSet[]) [sourceSets.additions, sourceSets.datagenadditions])
-                mekanismdefense.sources((SourceSet[]) [sourceSets.defense, sourceSets.datagendefense])
-                mekanismgenerators.sources((SourceSet[]) [sourceSets.generators, sourceSets.datagengenerators])
-                mekanismtools.sources((SourceSet[]) [sourceSets.tools, sourceSets.datagentools])
-            }
+        datagen {
+            client()
+            source "datagenmain"
+            source "datagenadditions"
+            source "datagendefense"
+            source "datagengenerators"
+            source "datagentools"
+            property "appeng.generateData", "true"
+            property "appeng.generateData.outputPath", file("src/datagen/generated/").absolutePath
+            property "appeng.generateData.existingData", file("src/main/resources").absolutePath
         }
     }
 }
 
 repositories {
+    maven { url = "https://maven.parchmentmc.org" }
+    maven { url = "https://jitpack.io/" }
+    maven { url = "https://maven.devos.community/snapshots/" }
+    maven { url = "https://maven.devos.community/releases/" }
+    maven {
+        name = 'Ladysnake Mods'
+        url = 'https://ladysnake.jfrog.io/artifactory/mods'
+    }
+    maven {
+        url "https://maven.jamieswhiteshirt.com/libs-release"
+        content {
+            includeGroup "com.jamieswhiteshirt"
+        }
+    }
     maven {
         name 'thiakil'
         url 'https://maven.thiakil.com'
@@ -384,6 +296,7 @@ repositories {
             }
         }
     }
+    mavenCentral()
 }
 
 test {
@@ -391,7 +304,14 @@ test {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        it.officialMojangMappings {}
+        it.parchment("org.parchmentmc.data:parchment-1.18.2:${mappings_version}@zip") // https://ldtteam.jfrog.io/ui/native/parchmentmc-public/org/parchmentmc/data/parchment-1.18.1/BLEEDING-SNAPSHOT
+    }
+
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     annotationProcessor project(":annotation-processor")
 
@@ -402,51 +322,65 @@ dependencies {
 
     compileOnly "org.jetbrains:annotations:${jb_annotations}"
 
-    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
+    // Forge stuff
+    modImplementation(include("io.github.fabricators_of_create:Porting-Lib:0.1.0-interfacent+1.18-faceless.3360554"))
 
-    //TODO - 1.18: Re-enable once updated
-    //runtimeOnly fg.deobf("team.chisel.ctm:CTM:1.18-${ctm_version}")
+    // Config
+    modImplementation "curse.maven:forge-config-api-port-fabric-547434:3671141"
+    implementation 'com.electronwill.night-config:core:3.6.5'
+    implementation 'com.electronwill.night-config:toml:3.6.5'
 
-    //TODO - 1.18: Switch back to the proper maven once TOP is on it again
-    implementation fg.deobf("curse.maven:the-one-probe-245211:${top_id}")
-    //compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api")
-    //runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
+    // Components
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
+    //modImplementation "dev.onyxstudios.cardinal-components-api:<MODULE>:<VERSION>"
 
-    compileOnly fg.deobf("curse.maven:jade-api-324717:${jade_api_id}")
-    runtimeOnly fg.deobf("curse.maven:jade-324717:${jade_id}")
+    include modImplementation("com.jamieswhiteshirt:reach-entity-attributes:2.1.1")
 
-    //TODO - 1.18: Make these use the mc version as a var again and use implementation instead of compileOnly
-    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-forge-1.18.1:${crafttweaker_version}")
-    compileOnly fg.deobf("com.blamejared.jeitweaker:JEITweaker-1.18.1:${jeitweaker_version}")
-
-    //Mods we have dependencies on but don't bother loading into the dev environment
-    //TODO - 1.18: Currently we are getting projecte from flatdir for purposes of compiling
-    //compileOnly fg.deobf("curse.maven:projecte-api-226410:${projecte_api_id}")
-    compileOnly fg.deobf("projecte:projecte:1.0.0:api")
-    //TODO - 1.18: Support flux networks again when it ports
-    //compileOnly fg.deobf("curse.maven:flux-networks-248020:${flux_networks_id}")
-    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${minecraft_version}-${curios_version}:api")
-    compileOnly fg.deobf("curse.maven:opencomputers2-437654:${oc2_id}")
-    def cc = fg.deobf("curse.maven:cc-tweaked-282001:${cc_tweaked_id}")
-    compileOnly cc
-    //We require cc tweaked so that our CCArgumentWrapper tests can load, so expose it to the test runtime
-    testRuntimeOnly cc
-
-    //Dependencies for data generators for mod compat reference
-    datagenmainImplementation fg.deobf("appeng:appliedenergistics2:${ae2_version}") {
-        transitive = false
-    }
-    datagenmainCompileOnly fg.deobf("curse.maven:biomes-o-plenty-api-220318:${biomesoplenty_api_id}")
-    datagenmainRuntimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:${biomesoplenty_id}")
-    datagenmainRuntimeOnly fg.deobf("curse.maven:terrablender-563928:${terrablender_id}")//Biomes O' Plenty dep
-    datagenmainImplementation fg.deobf("curse.maven:biomes-youll-go-247560:${byg_id}")
-    datagenmainImplementation fg.deobf("curse.maven:i-like-wood-324164:${ilikewood_id}")
-    datagenmainImplementation fg.deobf("curse.maven:i-like-wood-biomes-o-plenty-437203:${ilikewood_bop_id}")
-    datagenmainImplementation fg.deobf("curse.maven:i-like-wood-oh-the-biomes-youll-go-475110:${ilikewood_byg_id}")
-    //TODO - 1.18: Currently we are getting projecte from flatdir for purposes of compiling
-    //datagenmainRuntimeOnly fg.deobf("curse.maven:projecte-226410:${projecte_id}")
-    datagenmainRuntimeOnly fg.deobf("projecte:projecte:1.0.0:universal")
+//    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
+//    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
+//
+//    //TODO - 1.18: Re-enable once updated
+//    //runtimeOnly fg.deobf("team.chisel.ctm:CTM:1.18-${ctm_version}")
+//
+//    //TODO - 1.18: Switch back to the proper maven once TOP is on it again
+//    implementation fg.deobf("curse.maven:the-one-probe-245211:${top_id}")
+//    //compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api")
+//    //runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
+//
+//    compileOnly fg.deobf("curse.maven:jade-api-324717:${jade_api_id}")
+//    runtimeOnly fg.deobf("curse.maven:jade-324717:${jade_id}")
+//
+//    //TODO - 1.18: Make these use the mc version as a var again and use implementation instead of compileOnly
+//    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-forge-1.18.1:${crafttweaker_version}")
+//    compileOnly fg.deobf("com.blamejared.jeitweaker:JEITweaker-1.18.1:${jeitweaker_version}")
+//
+//    //Mods we have dependencies on but don't bother loading into the dev environment
+//    //TODO - 1.18: Currently we are getting projecte from flatdir for purposes of compiling
+//    //compileOnly fg.deobf("curse.maven:projecte-api-226410:${projecte_api_id}")
+//    compileOnly fg.deobf("projecte:projecte:1.0.0:api")
+//    //TODO - 1.18: Support flux networks again when it ports
+//    //compileOnly fg.deobf("curse.maven:flux-networks-248020:${flux_networks_id}")
+//    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${minecraft_version}-${curios_version}:api")
+//    compileOnly fg.deobf("curse.maven:opencomputers2-437654:${oc2_id}")
+//    def cc = fg.deobf("curse.maven:cc-tweaked-282001:${cc_tweaked_id}")
+//    compileOnly cc
+//    //We require cc tweaked so that our CCArgumentWrapper tests can load, so expose it to the test runtime
+//    testRuntimeOnly cc
+//
+//    //Dependencies for data generators for mod compat reference
+//    datagenmainImplementation fg.deobf("appeng:appliedenergistics2:${ae2_version}") {
+//        transitive = false
+//    }
+//    datagenmainCompileOnly fg.deobf("curse.maven:biomes-o-plenty-api-220318:${biomesoplenty_api_id}")
+//    datagenmainRuntimeOnly fg.deobf("curse.maven:biomes-o-plenty-220318:${biomesoplenty_id}")
+//    datagenmainRuntimeOnly fg.deobf("curse.maven:terrablender-563928:${terrablender_id}")//Biomes O' Plenty dep
+//    datagenmainImplementation fg.deobf("curse.maven:biomes-youll-go-247560:${byg_id}")
+//    datagenmainImplementation fg.deobf("curse.maven:i-like-wood-324164:${ilikewood_id}")
+//    datagenmainImplementation fg.deobf("curse.maven:i-like-wood-biomes-o-plenty-437203:${ilikewood_bop_id}")
+//    datagenmainImplementation fg.deobf("curse.maven:i-like-wood-oh-the-biomes-youll-go-475110:${ilikewood_byg_id}")
+//    //TODO - 1.18: Currently we are getting projecte from flatdir for purposes of compiling
+//    //datagenmainRuntimeOnly fg.deobf("curse.maven:projecte-226410:${projecte_id}")
+//    datagenmainRuntimeOnly fg.deobf("projecte:projecte:1.0.0:universal")
 }
 
 if (project.hasProperty('UPDATE_MAPPINGS')) {
@@ -521,7 +455,7 @@ jar {
     duplicatesStrategy(DuplicatesStrategy.FAIL)
     from([sourceSets.api.output, sourceSets.main.output])
     manifest.attributes(getManifestAttributes("Mekanism"))
-    afterEvaluate { finalizedBy reobfJar }
+    afterEvaluate { finalizedBy remapJar }
 }
 
 task sourcesJar(type: Jar, dependsOn: [classes, apiClasses, additionsClasses, defenseClasses, generatorsClasses, toolsClasses]) {
@@ -536,7 +470,8 @@ task apiJar(type: Jar) {
     archiveClassifier.set("api")
     from sourceSets.api.output
     manifest.attributes(getManifestAttributes("Mekanism"))
-    afterEvaluate { finalizedBy reobfApiJar }
+    //afterEvaluate { finalizedBy remapJar }
+    from sourceSets.api.allJava
 }
 
 task additionsJar(type: Jar) {
@@ -545,7 +480,7 @@ task additionsJar(type: Jar) {
     archiveClassifier.set("additions")
     from sourceSets.additions.output
     manifest.attributes(getManifestAttributes("MekanismAdditions"))
-    afterEvaluate { finalizedBy reobfAdditionsJar }
+    //afterEvaluate { finalizedBy remapJar }
 }
 
 task defenseJar(type: Jar) {
@@ -554,7 +489,7 @@ task defenseJar(type: Jar) {
     archiveClassifier.set("defense")
     from sourceSets.defense.output
     manifest.attributes(getManifestAttributes("MekanismDefense"))
-    afterEvaluate { finalizedBy reobfDefenseJar }
+    //afterEvaluate { finalizedBy remapJar }
 }
 
 task generatorsJar(type: Jar) {
@@ -563,7 +498,7 @@ task generatorsJar(type: Jar) {
     archiveClassifier.set("generators")
     from sourceSets.generators.output
     manifest.attributes(getManifestAttributes("MekanismGenerators"))
-    afterEvaluate { finalizedBy reobfGeneratorsJar }
+    //afterEvaluate { finalizedBy remapJar }
 }
 
 task toolsJar(type: Jar) {
@@ -572,12 +507,12 @@ task toolsJar(type: Jar) {
     archiveClassifier.set("tools")
     from sourceSets.tools.output
     manifest.attributes(getManifestAttributes("MekanismTools"))
-    afterEvaluate { finalizedBy reobfToolsJar }
+    //afterEvaluate { finalizedBy remapJar }
 }
 
 task allJar(type: Jar, dependsOn: [classes, apiClasses, additionsClasses, defenseClasses, generatorsClasses, toolsClasses]) {
     mustRunAfter(clean)
-    afterEvaluate { finalizedBy reobfAllJar }
+    afterEvaluate { finalizedBy remapJar }
     duplicatesStrategy(DuplicatesStrategy.FAIL)
     archiveClassifier.set("all")
     manifest.attributes(getManifestAttributes("MekanismAll"))
@@ -654,15 +589,16 @@ artifacts {
     archives sourcesJar
 }
 
-reobf {
-    apiJar { classpath.from(sourceSets.api.compileClasspath) }
-    jar { classpath.from(sourceSets.main.compileClasspath) }
-    additionsJar { classpath.from(sourceSets.additions.compileClasspath) }
-    generatorsJar { classpath.from(sourceSets.generators.compileClasspath) }
-    defenseJar { classpath.from(sourceSets.defense.compileClasspath) }
-    toolsJar { classpath.from(sourceSets.tools.compileClasspath) }
-    allJar {}
-}
+
+//remap {
+//    apiJar { classpath.from(sourceSets.api.compileClasspath) }
+//    jar { classpath.from(sourceSets.main.compileClasspath) }
+//    additionsJar { classpath.from(sourceSets.additions.compileClasspath) }
+//    generatorsJar { classpath.from(sourceSets.generators.compileClasspath) }
+//    defenseJar { classpath.from(sourceSets.defense.compileClasspath) }
+//    toolsJar { classpath.from(sourceSets.tools.compileClasspath) }
+//    allJar {}
+//} TODO figure out what this does
 
 //Minimize/optimize all png files, requires optipng on the PATH
 // Credits: BrainStone

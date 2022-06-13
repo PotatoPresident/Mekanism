@@ -6,7 +6,7 @@ import mekanism.api.providers.IFluidProvider;
 import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault

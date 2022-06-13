@@ -56,10 +56,10 @@ public class BoxedChemical implements IHasTextComponent {
         //Note: Casts are needed for compiling, so it knows how to read it properly
         ChemicalType chemicalType = buffer.readEnum(ChemicalType.class);
         return switch (chemicalType) {
-            case GAS -> new BoxedChemical(chemicalType, (Gas) buffer.readRegistryId());
-            case INFUSION -> new BoxedChemical(chemicalType, (InfuseType) buffer.readRegistryId());
-            case PIGMENT -> new BoxedChemical(chemicalType, (Pigment) buffer.readRegistryId());
-            case SLURRY -> new BoxedChemical(chemicalType, (Slurry) buffer.readRegistryId());
+            case GAS -> new BoxedChemical(chemicalType, MekanismAPI.gasRegistry().get(buffer.readResourceLocation()));
+            case INFUSION -> new BoxedChemical(chemicalType, MekanismAPI.infuseTypeRegistry().get(buffer.readResourceLocation()));
+            case PIGMENT -> new BoxedChemical(chemicalType, MekanismAPI.pigmentRegistry().get(buffer.readResourceLocation()));
+            case SLURRY -> new BoxedChemical(chemicalType, MekanismAPI.slurryRegistry().get(buffer.readResourceLocation()));
         };
     }
 
@@ -130,10 +130,10 @@ public class BoxedChemical implements IHasTextComponent {
     public void write(FriendlyByteBuf buffer) {
         buffer.writeEnum(chemicalType);
         switch (chemicalType) {
-            case GAS -> buffer.writeRegistryId((Gas) chemical);
-            case INFUSION -> buffer.writeRegistryId((InfuseType) chemical);
-            case PIGMENT -> buffer.writeRegistryId((Pigment) chemical);
-            case SLURRY -> buffer.writeRegistryId((Slurry) chemical);
+            case GAS -> buffer.writeResourceLocation(MekanismAPI.gasRegistry().getKey((Gas) chemical));
+            case INFUSION -> buffer.writeResourceLocation(MekanismAPI.infuseTypeRegistry().getKey((InfuseType) chemical));
+            case PIGMENT -> buffer.writeResourceLocation(MekanismAPI.pigmentRegistry().getKey((Pigment) chemical));
+            case SLURRY -> buffer.writeResourceLocation(MekanismAPI.slurryRegistry().getKey((Slurry) chemical));
         }
     }
 

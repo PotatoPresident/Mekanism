@@ -12,20 +12,20 @@ import mekanism.common.Mekanism;
 import mekanism.common.content.gear.ModuleHelper;
 import mekanism.common.item.ItemModule;
 import mekanism.common.registration.WrappedDeferredRegister;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.SpawnEggItem;
 
 public class ItemDeferredRegister extends WrappedDeferredRegister<Item> {
 
     private final List<IItemProvider> allItems = new ArrayList<>();
 
     public ItemDeferredRegister(String modid) {
-        super(modid, ForgeRegistries.ITEMS);
+        super(modid, Registry.ITEM);
     }
 
     public static Item.Properties getMekBaseProperties() {
@@ -68,15 +68,15 @@ public class ItemDeferredRegister extends WrappedDeferredRegister<Item> {
         return register(name, () -> sup.apply(getMekBaseProperties().fireResistant()));
     }
 
-    public <ITEM extends Item> ItemRegistryObject<ITEM> register(String name, Supplier<? extends ITEM> sup) {
+    public <ITEM extends Item> ItemRegistryObject<ITEM> register(String name, Supplier<ITEM> sup) {
         ItemRegistryObject<ITEM> registeredItem = register(name, sup, ItemRegistryObject::new);
         allItems.add(registeredItem);
         return registeredItem;
     }
 
-    public <ENTITY extends Mob> ItemRegistryObject<ForgeSpawnEggItem> registerSpawnEgg(EntityTypeRegistryObject<ENTITY> entityTypeProvider,
-          int primaryColor, int secondaryColor) {
-        return register(entityTypeProvider.getInternalRegistryName() + "_spawn_egg", props -> new ForgeSpawnEggItem(entityTypeProvider, primaryColor,
+    public <ENTITY extends Mob> ItemRegistryObject<SpawnEggItem> registerSpawnEgg(EntityTypeRegistryObject<ENTITY> entityTypeProvider,
+                                                                                  int primaryColor, int secondaryColor) {
+        return register(entityTypeProvider.getInternalRegistryName() + "_spawn_egg", props -> new SpawnEggItem(entityTypeProvider.getEntityType(), primaryColor,
               secondaryColor, props));
     }
 

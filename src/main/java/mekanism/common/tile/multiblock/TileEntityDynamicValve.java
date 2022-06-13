@@ -22,7 +22,7 @@ import mekanism.common.tile.base.SubstanceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class TileEntityDynamicValve extends TileEntityDynamicTank {
 

@@ -15,7 +15,7 @@ import mekanism.common.network.to_server.PacketDropperUse.TankType;
 import mekanism.common.util.text.TextUtils;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class GuiFluidGauge extends GuiTankGauge<FluidStack, IExtendedFluidTank> {
 

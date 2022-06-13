@@ -11,7 +11,6 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
 
 public class EntityBabyWitherSkeleton extends WitherSkeleton implements IBabyEntity {
 

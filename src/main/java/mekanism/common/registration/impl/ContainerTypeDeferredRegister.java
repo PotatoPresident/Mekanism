@@ -14,18 +14,17 @@ import mekanism.common.inventory.container.type.MekanismItemContainerType.IMekan
 import mekanism.common.registration.INamedEntry;
 import mekanism.common.registration.WrappedDeferredRegister;
 import mekanism.common.tile.base.TileEntityMekanism;
+import net.minecraft.core.Registry;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class ContainerTypeDeferredRegister extends WrappedDeferredRegister<MenuType<?>> {
 
     public ContainerTypeDeferredRegister(String modid) {
-        super(modid, ForgeRegistries.CONTAINERS);
+        super(modid, Registry.MENU);
     }
 
     public <TILE extends TileEntityMekanism> ContainerTypeRegistryObject<MekanismTileContainer<TILE>> register(INamedEntry nameProvider, Class<TILE> tileClass) {

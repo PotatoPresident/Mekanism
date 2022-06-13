@@ -3,9 +3,10 @@ package mekanism.common.lib.inventory;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import mekanism.common.util.StackUtils;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 /**
  * A wrapper of an ItemStack which tests equality and hashes based on item type and NBT data, ignoring stack size.

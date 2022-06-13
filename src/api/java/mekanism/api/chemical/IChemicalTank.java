@@ -1,6 +1,8 @@
 package mekanism.api.chemical;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import dev.onyxstudios.cca.api.v3.component.Component;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
@@ -8,12 +10,11 @@ import mekanism.api.NBTConstants;
 import mekanism.api.chemical.attribute.ChemicalAttributeValidator;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public interface IChemicalTank<CHEMICAL extends Chemical<CHEMICAL>, STACK extends ChemicalStack<CHEMICAL>> extends IEmptyStackProvider<CHEMICAL, STACK>,
-      INBTSerializable<CompoundTag>, IContentsListener {
+        Component, IContentsListener {
 
     /**
      * Helper for creating a stack of the type this {@link IChemicalTank} is storing.
@@ -326,11 +327,9 @@ public interface IChemicalTank<CHEMICAL extends Chemical<CHEMICAL>, STACK extend
     }
 
     @Override
-    default CompoundTag serializeNBT() {
-        CompoundTag nbt = new CompoundTag();
+    default void writeToNbt(CompoundTag nbt) {
         if (!isEmpty()) {
             nbt.put(NBTConstants.STORED, getStack().write(new CompoundTag()));
         }
-        return nbt;
     }
 }

@@ -9,7 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.crafting.NBTIngredient;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -39,7 +38,7 @@ public interface IItemStackIngredientCreator extends IIngredientCreator<Item, It
         //Support NBT that is on the stack in case it matters
         //It is a protected constructor so pretend we are extending it and implementing it via the {}
         // Note: Only bother making it an NBT ingredient if the stack has NBT, otherwise there is no point in doing the extra checks
-        Ingredient ingredient = stack.hasTag() ? new NBTIngredient(stack) {} : Ingredient.of(stack);
+        Ingredient ingredient = /* TODO stack.hasTag() ? new NBTIngredient(stack) {} :*/ Ingredient.of(stack);
         return from(ingredient, amount);
     }
 

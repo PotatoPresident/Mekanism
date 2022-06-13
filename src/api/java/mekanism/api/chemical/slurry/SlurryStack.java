@@ -9,7 +9,6 @@ import mekanism.api.providers.ISlurryProvider;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.registries.IRegistryDelegate;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -35,13 +34,13 @@ public final class SlurryStack extends ChemicalStack<Slurry> {
     }
 
     @Override
-    protected IRegistryDelegate<Slurry> getDelegate(Slurry slurry) {
+    protected Slurry getDelegate(Slurry slurry) {
         if (MekanismAPI.slurryRegistry().getKey(slurry) == null) {
             MekanismAPI.logger.fatal("Failed attempt to create a SlurryStack for an unregistered Slurry {} (type {})", slurry.getRegistryName(),
                   slurry.getClass().getName());
             throw new IllegalArgumentException("Cannot create a SlurryStack from an unregistered Slurry");
         }
-        return slurry.delegate;
+        return slurry;
     }
 
     @Override
@@ -72,12 +71,18 @@ public final class SlurryStack extends ChemicalStack<Slurry> {
     }
 
     public static SlurryStack readFromPacket(FriendlyByteBuf buf) {
-        Slurry slurry = buf.readRegistryId();
+        Slurry slurry = MekanismAPI.slurryRegistry().get(buf.readResourceLocation());
         long amount = buf.readVarLong();
         if (slurry.isEmptyType()) {
             return EMPTY;
         }
         return new SlurryStack(slurry, amount);
+    }
+
+    @Override
+    public void writeToPacket(FriendlyByteBuf buffer) {
+        buffer.writeResourceLocation(MekanismAPI.slurryRegistry().getKey(getType()));
+        buffer.writeVarLong(getAmount());
     }
 
     /**

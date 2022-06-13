@@ -7,9 +7,11 @@ import mekanism.api.NBTConstants;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.providers.IInfuseTypeProvider;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.registries.IRegistryDelegate;
+
+import java.util.Objects;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -35,13 +37,13 @@ public final class InfusionStack extends ChemicalStack<InfuseType> {
     }
 
     @Override
-    protected IRegistryDelegate<InfuseType> getDelegate(InfuseType infuseType) {
+    protected InfuseType getDelegate(InfuseType infuseType) {
         if (MekanismAPI.infuseTypeRegistry().getKey(infuseType) == null) {
             MekanismAPI.logger.fatal("Failed attempt to create a InfusionStack for an unregistered InfuseType {} (type {})", infuseType.getRegistryName(),
                   infuseType.getClass().getName());
             throw new IllegalArgumentException("Cannot create a InfusionStack from an unregistered infusion type");
         }
-        return infuseType.delegate;
+        return infuseType;
     }
 
     @Override
@@ -72,12 +74,18 @@ public final class InfusionStack extends ChemicalStack<InfuseType> {
     }
 
     public static InfusionStack readFromPacket(FriendlyByteBuf buf) {
-        InfuseType infuseType = buf.readRegistryId();
+        InfuseType infuseType = MekanismAPI.infuseTypeRegistry().get(buf.readResourceLocation());
         long amount = buf.readVarLong();
         if (infuseType.isEmptyType()) {
             return EMPTY;
         }
         return new InfusionStack(infuseType, amount);
+    }
+
+    @Override
+    public void writeToPacket(FriendlyByteBuf buffer) {
+        buffer.writeResourceLocation(MekanismAPI.infuseTypeRegistry().getKey(getType()));
+        buffer.writeVarLong(getAmount());
     }
 
     /**

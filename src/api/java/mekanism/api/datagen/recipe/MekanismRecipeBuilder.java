@@ -8,21 +8,22 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import io.github.fabricators_of_create.porting_lib.crafting.CraftingHelper;
 import mekanism.api.JsonConstants;
 import mekanism.api.MekanismAPI;
 import mekanism.api.annotations.FieldsAreNonnullByDefault;
+import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Base recipe builder that declares various common methods between our different builders.
@@ -36,7 +37,7 @@ public abstract class MekanismRecipeBuilder<BUILDER extends MekanismRecipeBuilde
         return new ResourceLocation(MekanismAPI.MEKANISM_MODID, name);
     }
 
-    protected final List<ICondition> conditions = new ArrayList<>();
+    protected final List<ConditionJsonProvider> conditions = new ArrayList<>();
     protected final Advancement.Builder advancementBuilder = Advancement.Builder.advancement();
     protected final ResourceLocation serializerName;
 
@@ -70,7 +71,7 @@ public abstract class MekanismRecipeBuilder<BUILDER extends MekanismRecipeBuilde
      *
      * @param condition Condition to add.
      */
-    public BUILDER addCondition(ICondition condition) {
+    public BUILDER addCondition(ConditionJsonProvider condition) {
         conditions.add(condition);
         return (BUILDER) this;
     }
@@ -132,8 +133,8 @@ public abstract class MekanismRecipeBuilder<BUILDER extends MekanismRecipeBuilde
             jsonObject.addProperty(JsonConstants.TYPE, serializerName.toString());
             if (!conditions.isEmpty()) {
                 JsonArray conditionsArray = new JsonArray();
-                for (ICondition condition : conditions) {
-                    conditionsArray.add(CraftingHelper.serialize(condition));
+                for (ConditionJsonProvider condition : conditions) {
+                    conditionsArray.add(condition.toJson());
                 }
                 jsonObject.add(JsonConstants.CONDITIONS, conditionsArray);
             }
@@ -147,7 +148,7 @@ public abstract class MekanismRecipeBuilder<BUILDER extends MekanismRecipeBuilde
             //Note: This may be null if something is screwed up but this method isn't actually used, so it shouldn't matter
             // and in fact it will probably be null if only the API is included. But again, as we manually just use
             // the serializer's name this should not affect us
-            return ForgeRegistries.RECIPE_SERIALIZERS.getValue(serializerName);
+            return Registry.RECIPE_SERIALIZER.get(serializerName);
         }
 
         @Nonnull

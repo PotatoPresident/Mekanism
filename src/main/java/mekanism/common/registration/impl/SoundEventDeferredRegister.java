@@ -1,9 +1,9 @@
 package mekanism.common.registration.impl;
 
 import mekanism.common.registration.WrappedDeferredRegister;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class SoundEventDeferredRegister extends WrappedDeferredRegister<SoundEvent> {
 
@@ -11,7 +11,7 @@ public class SoundEventDeferredRegister extends WrappedDeferredRegister<SoundEve
     private final String modid;
 
     public SoundEventDeferredRegister(String modid) {
-        super(modid, ForgeRegistries.SOUND_EVENTS);
+        super(modid, Registry.SOUND_EVENT);
         this.modid = modid;
     }
 

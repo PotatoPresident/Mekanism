@@ -57,7 +57,7 @@ import mekanism.common.tile.prefab.TileEntityRecipeMachine;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class TileEntityChemicalWasher extends TileEntityRecipeMachine<FluidSlurryToSlurryRecipe> implements
       FluidChemicalRecipeLookupHandler<Slurry, SlurryStack, FluidSlurryToSlurryRecipe> {

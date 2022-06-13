@@ -13,7 +13,7 @@ import mekanism.api.recipes.ingredients.ChemicalStackIngredient.GasStackIngredie
 import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault

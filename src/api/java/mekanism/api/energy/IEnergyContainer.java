@@ -1,6 +1,8 @@
 package mekanism.api.energy;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import dev.onyxstudios.cca.api.v3.component.Component;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
@@ -8,11 +10,10 @@ import mekanism.api.NBTConstants;
 import mekanism.api.math.FloatingLong;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public interface IEnergyContainer extends INBTSerializable<CompoundTag>, IContentsListener {
+public interface IEnergyContainer extends Component, IContentsListener {
 
     /**
      * Returns the energy in this container.
@@ -157,11 +158,9 @@ public interface IEnergyContainer extends INBTSerializable<CompoundTag>, IConten
     }
 
     @Override
-    default CompoundTag serializeNBT() {
-        CompoundTag nbt = new CompoundTag();
+    default void writeToNbt(CompoundTag nbt) {
         if (!isEmpty()) {
             nbt.putString(NBTConstants.STORED, getEnergy().toString());
         }
-        return nbt;
     }
 }

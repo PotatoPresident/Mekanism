@@ -38,7 +38,7 @@ import mekanism.common.network.to_client.container.property.list.ListPropertyDat
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public enum PropertyType {

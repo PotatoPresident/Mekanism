@@ -1,13 +1,6 @@
 package mekanism.api.chemical;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.mojang.datafixers.util.Pair;
 import mekanism.api.chemical.attribute.ChemicalAttribute;
 import mekanism.api.providers.IChemicalProvider;
 import mekanism.api.text.IHasTextComponent;
@@ -18,13 +11,19 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.tags.IReverseTag;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class Chemical<CHEMICAL extends Chemical<CHEMICAL>> extends ForgeRegistryEntry<CHEMICAL> implements IChemicalProvider<CHEMICAL>, IHasTextComponent,
-      IHasTranslationKey {
+public abstract class Chemical<CHEMICAL extends Chemical<CHEMICAL>> implements IChemicalProvider<CHEMICAL>, IHasTextComponent,
+        IHasTranslationKey {
 
     private final ChemicalTags<CHEMICAL> chemicalTags;
     private final Map<Class<? extends ChemicalAttribute>, ChemicalAttribute> attributeMap;
@@ -62,7 +61,6 @@ public abstract class Chemical<CHEMICAL extends Chemical<CHEMICAL>> extends Forg
      * Whether this chemical has an attribute of a certain type.
      *
      * @param type attribute type to check
-     *
      * @return if this chemical has the attribute
      */
     public boolean has(Class<? extends ChemicalAttribute> type) {
@@ -73,7 +71,6 @@ public abstract class Chemical<CHEMICAL extends Chemical<CHEMICAL>> extends Forg
      * Gets the attribute instance of a certain type, or null if it doesn't exist.
      *
      * @param type attribute type to get
-     *
      * @return attribute instance
      */
     @Nullable
@@ -113,7 +110,6 @@ public abstract class Chemical<CHEMICAL extends Chemical<CHEMICAL>> extends Forg
      * Writes this Chemical to a defined tag compound.
      *
      * @param nbtTags - tag compound to write this Chemical to
-     *
      * @return the tag compound this Chemical was written to
      */
     public abstract CompoundTag write(CompoundTag nbtTags);
@@ -168,12 +164,10 @@ public abstract class Chemical<CHEMICAL extends Chemical<CHEMICAL>> extends Forg
      * Checks if this chemical is in a given tag.
      *
      * @param tag The tag to check.
-     *
      * @return {@code true} if the chemical is in the tag, {@code false} otherwise.
      */
     public boolean is(TagKey<CHEMICAL> tag) {
-        return getReverseTag().map(reverseTag -> reverseTag.containsTag(tag))
-              .orElse(false);
+        return chemicalTags.getRegistry().isKnownTagName(tag);
     }
 
     /**
@@ -182,16 +176,7 @@ public abstract class Chemical<CHEMICAL extends Chemical<CHEMICAL>> extends Forg
      * @return All the tags this chemical is a part of.
      */
     public Stream<TagKey<CHEMICAL>> getTags() {
-        return getReverseTag().map(IReverseTag::getTagKeys).orElseGet(Stream::empty);
-    }
-
-    /**
-     * Used to look-up the reverse tag that corresponds with this chemical.
-     *
-     * @return Corresponding reverse tag or empty.
-     */
-    protected Optional<IReverseTag<CHEMICAL>> getReverseTag() {
-        return chemicalTags.getManager().flatMap(manager -> manager.getReverseTag(getChemical()));
+        return chemicalTags.getRegistry().getTags().map(Pair::getFirst);
     }
 
     /**

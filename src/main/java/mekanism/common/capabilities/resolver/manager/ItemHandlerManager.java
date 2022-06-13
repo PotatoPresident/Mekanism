@@ -2,6 +2,8 @@ package mekanism.common.capabilities.resolver.manager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import io.github.fabricators_of_create.porting_lib.transfer.item.IItemHandler;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.api.inventory.ISidedItemHandler;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;

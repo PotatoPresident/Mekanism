@@ -86,7 +86,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.NBTIngredient;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public abstract class BaseCrTExampleProvider implements DataProvider {

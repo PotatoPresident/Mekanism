@@ -118,7 +118,6 @@ import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 //TODO: When Galacticraft gets ported make it so the robit can "breath" without a mask

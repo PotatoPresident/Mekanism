@@ -1,1 +1,19 @@
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'Quiltmc'
+            url = 'https://maven.quiltmc.org/repository/release'
+        }
+        maven {
+            name = 'Cotton'
+            url = 'https://server.bbkr.space/artifactory/libs-release/'
+        }
+        gradlePluginPortal()
+    }
+}
+
 include 'annotation-processor'

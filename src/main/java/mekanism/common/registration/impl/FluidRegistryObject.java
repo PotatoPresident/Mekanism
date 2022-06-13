@@ -3,13 +3,14 @@ package mekanism.common.registration.impl;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
 import mekanism.api.providers.IFluidProvider;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 @ParametersAreNonnullByDefault
 public class FluidRegistryObject<STILL extends Fluid, FLOWING extends Fluid, BLOCK extends LiquidBlock, BUCKET extends BucketItem> implements IFluidProvider {
@@ -20,9 +21,9 @@ public class FluidRegistryObject<STILL extends Fluid, FLOWING extends Fluid, BLO
     private RegistryObject<BUCKET> bucketRO;
 
     public FluidRegistryObject(String modid, String name) {
-        this.stillRO = RegistryObject.of(new ResourceLocation(modid, name), ForgeRegistries.FLUIDS);
-        this.flowingRO = RegistryObject.of(new ResourceLocation(modid, "flowing_" + name), ForgeRegistries.FLUIDS);
-        this.blockRO = RegistryObject.of(new ResourceLocation(modid, name), ForgeRegistries.BLOCKS);
+        this.stillRO = new RegistryObject(new ResourceLocation(modid, name), Registry.FLUID);
+        this.flowingRO = RegistryObject.of(new ResourceLocation(modid, "flowing_" + name), Registry.FLUID);
+        this.blockRO = RegistryObject.of(new ResourceLocation(modid, name), Registry.BLOCK);
         this.bucketRO = RegistryObject.of(new ResourceLocation(modid, name + "_bucket"), ForgeRegistries.ITEMS);
     }
 

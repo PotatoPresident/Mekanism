@@ -13,7 +13,7 @@ import mekanism.api.IContentsListener;
 import mekanism.api.annotations.FieldsAreNonnullByDefault;
 import mekanism.api.annotations.NonNull;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault

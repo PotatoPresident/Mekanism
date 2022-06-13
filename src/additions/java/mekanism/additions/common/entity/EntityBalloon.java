@@ -37,7 +37,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
 
 public class EntityBalloon extends Entity implements IEntityAdditionalSpawnData {
 

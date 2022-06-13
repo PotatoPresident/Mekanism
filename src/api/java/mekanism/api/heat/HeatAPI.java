@@ -49,6 +49,7 @@ public class HeatAPI {
         if (world == null) {
             return AMBIENT_TEMP;
         }
+        //noinspection deprecation
         return getAmbientTemp(world.getBiome(pos).value().getTemperature(pos));
     }
 

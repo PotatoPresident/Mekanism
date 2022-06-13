@@ -1,6 +1,9 @@
 package mekanism.common.block.basic;
 
 import javax.annotation.Nonnull;
+
+import io.github.fabricators_of_create.porting_lib.extensions.FluidExtensions;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidAttributes;
 import mekanism.api.text.EnumColor;
 import mekanism.common.block.attribute.Attribute;
 import mekanism.common.block.interfaces.IColoredBlock;
@@ -21,8 +24,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class BlockFluidTank extends BlockTileModel<TileEntityFluidTank, Machine<TileEntityFluidTank>> implements IColoredBlock {
 
@@ -41,7 +43,7 @@ public class BlockFluidTank extends BlockTileModel<TileEntityFluidTank, Machine<
         if (tile != null) {
             FluidStack fluid = tile.fluidTank.getFluid();
             if (!fluid.isEmpty()) {
-                FluidAttributes fluidAttributes = fluid.getFluid().getAttributes();
+                FluidAttributes fluidAttributes = ((FluidExtensions) fluid.getFluid()).getAttributes();
                 //TODO: Decide if we want to always be using the luminosity of the stack
                 ambientLight = Math.max(ambientLight, world instanceof BlockAndTintGetter tintGetter ? fluidAttributes.getLuminosity(tintGetter, pos)
                                                                                                      : fluidAttributes.getLuminosity(fluid));

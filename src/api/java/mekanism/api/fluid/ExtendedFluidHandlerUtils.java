@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.function.IntSupplier;
 import mekanism.api.Action;
 import mekanism.api.annotations.NonNull;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class ExtendedFluidHandlerUtils {
 
@@ -54,13 +54,13 @@ public class ExtendedFluidHandlerUtils {
     /**
      * Util method for a generic extraction implementation for various handlers. Mainly for internal use only
      */
-    public static FluidStack extract(int amount, Action action, IntSupplier tankCount, Int2ObjectFunction<@NonNull FluidStack> inTankGetter, ExtractFluid extractFluid) {
+    public static FluidStack extract(long amount, Action action, IntSupplier tankCount, Int2ObjectFunction<@NonNull FluidStack> inTankGetter, ExtractFluid extractFluid) {
         int tanks = tankCount.getAsInt();
         if (tanks == 1) {
             return extractFluid.extract(0, amount, action);
         }
         FluidStack extracted = FluidStack.EMPTY;
-        int toDrain = amount;
+        long toDrain = amount;
         for (int tank = 0; tank < tanks; tank++) {
             if (extracted.isEmpty() || extracted.isFluidEqual(inTankGetter.get(tank))) {
                 //If there is fluid in the tank that matches the type we have started draining, or we haven't found a type yet
@@ -98,7 +98,7 @@ public class ExtendedFluidHandlerUtils {
             return extractFluid.extract(0, stack.getAmount(), action);
         }
         FluidStack extracted = FluidStack.EMPTY;
-        int toDrain = stack.getAmount();
+        long toDrain = stack.getAmount();
         for (int tank = 0; tank < tanks; tank++) {
             if (stack.isFluidEqual(inTankGetter.get(tank))) {
                 //If there is fluid in the tank that matches the type we are trying to drain, try to drain from it
@@ -131,6 +131,6 @@ public class ExtendedFluidHandlerUtils {
     @FunctionalInterface
     public interface ExtractFluid {
 
-        FluidStack extract(int tank, int amount, Action action);
+        FluidStack extract(int tank, long amount, Action action);
     }
 }

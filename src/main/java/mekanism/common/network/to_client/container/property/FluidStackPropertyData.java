@@ -3,7 +3,7 @@ package mekanism.common.network.to_client.container.property;
 import javax.annotation.Nonnull;
 import mekanism.common.inventory.container.MekanismContainer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class FluidStackPropertyData extends PropertyData {
 

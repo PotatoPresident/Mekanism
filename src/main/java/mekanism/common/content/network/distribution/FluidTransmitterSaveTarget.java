@@ -7,7 +7,7 @@ import mekanism.api.math.MathUtils;
 import mekanism.common.content.network.transmitter.MechanicalPipe;
 import mekanism.common.lib.distribution.SplitInfo;
 import mekanism.common.lib.distribution.Target;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 //TODO: Improve handling for fluid storage as longs
 public class FluidTransmitterSaveTarget extends Target<FluidTransmitterSaveTarget.SaveHandler, Integer, @NonNull FluidStack> {

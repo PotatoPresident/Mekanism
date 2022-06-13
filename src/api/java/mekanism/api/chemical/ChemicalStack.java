@@ -4,16 +4,18 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import mekanism.api.NBTConstants;
 import mekanism.api.chemical.attribute.ChemicalAttribute;
 import mekanism.api.text.IHasTextComponent;
 import mekanism.api.text.IHasTranslationKey;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IRegistryDelegate;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -22,7 +24,7 @@ public abstract class ChemicalStack<CHEMICAL extends Chemical<CHEMICAL>> impleme
     private boolean isEmpty;
     private long amount;
     @Nonnull
-    private final IRegistryDelegate<CHEMICAL> chemicalDelegate;
+    private final CHEMICAL chemicalDelegate;
 
     protected ChemicalStack(CHEMICAL chemical, long amount) {
         this.chemicalDelegate = getDelegate(chemical);
@@ -33,7 +35,7 @@ public abstract class ChemicalStack<CHEMICAL extends Chemical<CHEMICAL>> impleme
     /**
      * Used for checking the chemical is valid and registered.
      */
-    protected abstract IRegistryDelegate<CHEMICAL> getDelegate(CHEMICAL chemical);
+    protected abstract CHEMICAL getDelegate(CHEMICAL chemical);
 
     /**
      * Helper ot get the empty version of this chemical.
@@ -109,7 +111,7 @@ public abstract class ChemicalStack<CHEMICAL extends Chemical<CHEMICAL>> impleme
     }
 
     public final CHEMICAL getRaw() {
-        return chemicalDelegate.get();
+        return chemicalDelegate;
     }
 
     /**
@@ -286,8 +288,5 @@ public abstract class ChemicalStack<CHEMICAL extends Chemical<CHEMICAL>> impleme
      *
      * @param buffer - Buffer to write to.
      */
-    public void writeToPacket(FriendlyByteBuf buffer) {
-        buffer.writeRegistryId(getType());
-        buffer.writeVarLong(getAmount());
-    }
+    public abstract void writeToPacket(FriendlyByteBuf buffer);
 }

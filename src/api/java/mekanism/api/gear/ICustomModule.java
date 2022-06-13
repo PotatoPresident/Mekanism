@@ -18,7 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraftforge.common.ToolAction;
 
 /**
  * Interface used to describe and implement custom modules. Instances of this should be returned via the {@link ModuleData}.
@@ -162,7 +161,7 @@ public interface ICustomModule<MODULE extends ICustomModule<MODULE>> {
      * @param module Module instance.
      * @param action Tool action to check.
      */
-    default boolean canPerformAction(IModule<MODULE> module, ToolAction action) {
+    default boolean canPerformAction(IModule<MODULE> module/*, ToolAction action*/) {
         return false;
     }
 

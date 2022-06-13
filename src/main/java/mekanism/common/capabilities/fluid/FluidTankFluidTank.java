@@ -11,7 +11,7 @@ import mekanism.common.tier.FluidTankTier;
 import mekanism.common.tile.TileEntityFluidTank;
 import mekanism.common.util.WorldUtils;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault

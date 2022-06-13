@@ -272,12 +272,10 @@ public abstract class BasicChemicalTank<CHEMICAL extends Chemical<CHEMICAL>, STA
      * @implNote Overwritten so that if we decide to change to returning a cached/copy of our stack in {@link #getStack()}, we can optimize out the copying.
      */
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag nbt = new CompoundTag();
+    public void readFromNbt(CompoundTag nbt) {
         if (!isEmpty()) {
             nbt.put(NBTConstants.STORED, stored.write(new CompoundTag()));
         }
-        return nbt;
     }
 
     @Override

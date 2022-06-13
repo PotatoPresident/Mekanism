@@ -4,9 +4,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
 import mekanism.api.NBTConstants;
 import mekanism.common.config.MekanismConfig;
 import mekanism.common.content.qio.IQIOCraftingWindowHolder;
@@ -15,25 +12,33 @@ import mekanism.common.lib.frequency.FrequencyManager;
 import mekanism.common.lib.radiation.RadiationManager;
 import mekanism.common.util.WorldUtils;
 import mekanism.common.world.GenHandler;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.ServerTickEvent;
-import net.minecraftforge.event.TickEvent.WorldTickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.world.ChunkDataEvent;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.world.level.chunk.LevelChunk;
+
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 public class CommonWorldTickHandler {
+    public CommonWorldTickHandler() {
+        ServerChunkEvents.CHUNK_LOAD.register(this::onChunkDataLoad);
+        ServerChunkEvents.CHUNK_UNLOAD.register(this::chunkUnloadEvent);
+        ServerWorldEvents.LOAD.register(this::worldLoadEvent);
+        ServerWorldEvents.UNLOAD.register(this::worldUnloadEvent);
+        ServerTickEvents.END_SERVER_TICK.register(this::serverTick);
+        ServerTickEvents.END_WORLD_TICK.register(this::tickEnd);
+    }
 
     private static final long maximumDeltaTimeNanoSecs = 16_000_000; // 16 milliseconds
 
@@ -85,16 +90,14 @@ public class CommonWorldTickHandler {
             int chunkVersion = MekanismConfig.world.userGenVersion.get();
             if (chunkVersions != null) {
                 chunkVersion = chunkVersions.getOrDefault(level.dimension().location(), Object2IntMaps.emptyMap())
-                      .getOrDefault(event.getChunk().getPos(), chunkVersion);
+                        .getOrDefault(event.getChunk().getPos(), chunkVersion);
             }
             event.getData().putInt(NBTConstants.WORLD_GEN_VERSION, chunkVersion);
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public synchronized void onChunkDataLoad(ChunkDataEvent.Load event) {
-        if (event.getWorld() instanceof Level level && !level.isClientSide()) {
-            int version = event.getData().getInt(NBTConstants.WORLD_GEN_VERSION);
+    public synchronized void onChunkDataLoad(ServerLevel world, LevelChunk chunk) {
+            int version = chunk.getData().getInt(NBTConstants.WORLD_GEN_VERSION);
             //When a chunk is loaded, if it has an older version than the latest one
             if (version < MekanismConfig.world.userGenVersion.get()) {
                 //Track what version it has so that when we save it, if we haven't gotten a chance to update
@@ -105,56 +108,35 @@ public class CommonWorldTickHandler {
                 ChunkPos chunkCoord = event.getChunk().getPos();
                 ResourceKey<Level> dimension = level.dimension();
                 chunkVersions.computeIfAbsent(dimension.location(), dim -> new Object2IntOpenHashMap<>())
-                      .put(chunkCoord, version);
+                        .put(chunkCoord, version);
                 if (MekanismConfig.world.enableRegeneration.get()) {
                     //If retrogen is enabled, then we also need to mark the chunk as needing retrogen
                     addRegenChunk(dimension, chunkCoord);
                 }
             }
-        }
     }
 
-    @SubscribeEvent
-    public void chunkUnloadEvent(ChunkEvent.Unload event) {
-        if (event.getWorld() instanceof Level level && !level.isClientSide() && chunkVersions != null) {
+    public void chunkUnloadEvent(ServerLevel world, LevelChunk chunk) {
+        if (chunkVersions != null) {
             //When a chunk unloads, free up the memory tracking what version it has
             chunkVersions.getOrDefault(level.dimension().location(), Object2IntMaps.emptyMap())
-                  .removeInt(event.getChunk().getPos());
+                    .removeInt(chunk.getPos());
         }
     }
 
-    @SubscribeEvent
-    public void worldUnloadEvent(WorldEvent.Unload event) {
-        LevelAccessor world = event.getWorld();
-        if (!world.isClientSide() && world instanceof Level level && chunkVersions != null) {
+    public void worldUnloadEvent(MinecraftServer server, ServerLevel world) {
+        if (chunkVersions != null) {
             //When a world unloads, free up memory tracking the versions of the chunks in it
-            chunkVersions.remove(level.dimension().location());
+            chunkVersions.remove(world.dimension().location());
         }
     }
 
-    @SubscribeEvent
-    public void worldLoadEvent(WorldEvent.Load event) {
-        if (!event.getWorld().isClientSide()) {
-            FrequencyManager.load();
-            RadiationManager.INSTANCE.createOrLoad();
-        }
+    public void worldLoadEvent(MinecraftServer server, ServerLevel world) {
+        FrequencyManager.load();
+        RadiationManager.INSTANCE.createOrLoad();
     }
 
-    @SubscribeEvent
-    public void onTick(ServerTickEvent event) {
-        if (event.side.isServer() && event.phase == Phase.END) {
-            serverTick();
-        }
-    }
-
-    @SubscribeEvent
-    public void onTick(WorldTickEvent event) {
-        if (event.side.isServer() && event.phase == Phase.END) {
-            tickEnd((ServerLevel) event.world);
-        }
-    }
-
-    private void serverTick() {
+    private void serverTick(MinecraftServer server) {
         FrequencyManager.tick();
         RadiationManager.INSTANCE.tickServer();
     }

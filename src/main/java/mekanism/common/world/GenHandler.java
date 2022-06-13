@@ -76,7 +76,7 @@ public class GenHandler {
     private static MekFeature SALT_FEATURE;
 
     public static void setupWorldGenFeatures() {
-        if (ModLoader.isLoadingStateValid()) {
+        //if (ModLoader.isLoadingStateValid()) {
             //Validate our loading state is valid, and if it is register our configured features to the configured features registry
             // and our placed features to the placed features registry
             registerIntProviderTypes();
@@ -105,7 +105,7 @@ public class GenHandler {
                   getSaltFeature(PlacementUtils.HEIGHTMAP_TOP_SOLID, false),
                   getSaltFeature(PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, true)
             );
-        }
+        //}
     }
 
     private static void registerIntProviderTypes() {

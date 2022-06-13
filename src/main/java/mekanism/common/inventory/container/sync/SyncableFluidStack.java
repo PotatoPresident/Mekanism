@@ -8,7 +8,7 @@ import mekanism.api.fluid.IExtendedFluidTank;
 import mekanism.common.network.to_client.container.property.FluidStackPropertyData;
 import mekanism.common.network.to_client.container.property.IntPropertyData;
 import mekanism.common.network.to_client.container.property.PropertyData;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 /**
  * Version of {@link net.minecraft.world.inventory.DataSlot} for handling fluid stacks

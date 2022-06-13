@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 public class InfuseTypeDeferredRegister extends WrappedDeferredRegister<InfuseType> {
 
     public InfuseTypeDeferredRegister(String modid) {
-        super(modid, MekanismAPI.infuseTypeRegistryName());
+        super(modid, MekanismAPI.infuseTypeRegistry());
     }
 
     public InfuseTypeRegistryObject<InfuseType> register(String name, int tint) {
@@ -26,7 +26,7 @@ public class InfuseTypeDeferredRegister extends WrappedDeferredRegister<InfuseTy
         });
     }
 
-    public <INFUSE_TYPE extends InfuseType> InfuseTypeRegistryObject<INFUSE_TYPE> register(String name, Supplier<? extends INFUSE_TYPE> sup) {
+    public <INFUSE_TYPE extends InfuseType> InfuseTypeRegistryObject<INFUSE_TYPE> register(String name, Supplier<INFUSE_TYPE> sup) {
         return register(name, sup, InfuseTypeRegistryObject::new);
     }
 }

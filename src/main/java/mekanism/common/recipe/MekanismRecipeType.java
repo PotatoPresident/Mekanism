@@ -170,7 +170,7 @@ public class MekanismRecipeType<RECIPE_TYPE extends MekanismRecipe, INPUT_CACHE 
     }
 
     //TODO: Convert this to using the proper forge registry once we stop needing to directly use the vanilla registry as a work around
-    public static void registerRecipeTypes(IForgeRegistry<RecipeSerializer<?>> registry) {
+    public static void registerRecipeTypes() {
         types.forEach(type -> Registry.register(Registry.RECIPE_TYPE, type.registryName, type));
     }
 

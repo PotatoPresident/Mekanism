@@ -1,7 +1,7 @@
 package mekanism.common.lib;
 
 import javax.annotation.Nonnull;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 /**
  * A wrapper of an FluidStack which tests equality and hashes based on fluid type and NBT data, ignoring stack size.

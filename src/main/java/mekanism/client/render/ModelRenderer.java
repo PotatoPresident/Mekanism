@@ -7,7 +7,7 @@ import java.util.Map;
 import mekanism.client.render.MekanismRenderer.Model3D;
 import mekanism.client.render.data.RenderData;
 import mekanism.client.render.data.ValveRenderData;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public final class ModelRenderer {
 

@@ -4,6 +4,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import io.github.fabricators_of_create.porting_lib.util.NonNullSupplier;
 import mekanism.api.annotations.FieldsAreNonnullByDefault;
 import mekanism.api.gear.config.ModuleConfigItemCreator;
 import mekanism.api.providers.IItemProvider;
@@ -14,12 +16,10 @@ import net.minecraft.Util;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 @FieldsAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class ModuleData<MODULE extends ICustomModule<MODULE>> extends ForgeRegistryEntry<ModuleData<?>> implements IHasTranslationKey, IModuleDataProvider<MODULE> {
+public class ModuleData<MODULE extends ICustomModule<MODULE>> implements IHasTranslationKey, IModuleDataProvider<MODULE> {
 
     private final NonNullSupplier<MODULE> supplier;
     private final IItemProvider itemProvider;

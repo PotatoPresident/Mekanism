@@ -134,12 +134,12 @@ public abstract class ChemicalTankWrapper<CHEMICAL extends Chemical<CHEMICAL>, S
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        return internal.serializeNBT();
+    public void writeToNbt(CompoundTag nbt) {
+        internal.writeToNbt(nbt);
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        internal.deserializeNBT(nbt);
+    public void readFromNbt(CompoundTag nbt) {
+        internal.readFromNbt(nbt);
     }
 }

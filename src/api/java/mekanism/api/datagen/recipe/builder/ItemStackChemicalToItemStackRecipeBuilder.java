@@ -22,6 +22,7 @@ import mekanism.api.recipes.ingredients.ChemicalStackIngredient.InfusionStackIng
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient.PigmentStackIngredient;
 import mekanism.api.recipes.ingredients.ItemStackIngredient;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -129,7 +130,7 @@ public class ItemStackChemicalToItemStackRecipeBuilder<CHEMICAL extends Chemical
      * @param consumer Finished Recipe Consumer.
      */
     public void build(Consumer<FinishedRecipe> consumer) {
-        build(consumer, output.getItem().getRegistryName());
+        build(consumer, Registry.ITEM.getKey(output.getItem()));
     }
 
     public class ItemStackChemicalToItemStackRecipeResult extends RecipeResult {

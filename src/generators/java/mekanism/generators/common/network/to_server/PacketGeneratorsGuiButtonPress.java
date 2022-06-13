@@ -14,7 +14,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkHooks;
 
 /**
  * Used for informing the server that a click happened in a GUI and the gui window needs to change

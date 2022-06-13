@@ -1,10 +1,13 @@
 package mekanism.api.providers;
 
 import javax.annotation.Nonnull;
+
+import io.github.fabricators_of_create.porting_lib.extensions.FluidExtensions;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public interface IFluidProvider extends IBaseProvider {
 
@@ -26,16 +29,16 @@ public interface IFluidProvider extends IBaseProvider {
 
     @Override
     default ResourceLocation getRegistryName() {
-        return getFluid().getRegistryName();
+        return Registry.FLUID.getKey(getFluid());
     }
 
     @Override
     default Component getTextComponent() {
-        return getFluid().getAttributes().getDisplayName(getFluidStack(1));
+        return getFluidStack(1).getDisplayName();
     }
 
     @Override
     default String getTranslationKey() {
-        return getFluid().getAttributes().getTranslationKey();
+        return ((FluidExtensions)this.getFluid()).getAttributes().getTranslationKey();
     }
 }

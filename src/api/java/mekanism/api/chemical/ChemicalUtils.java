@@ -14,10 +14,10 @@ import mekanism.api.chemical.infuse.InfusionStack;
 import mekanism.api.chemical.pigment.PigmentStack;
 import mekanism.api.chemical.slurry.SlurryStack;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistry;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -110,11 +110,11 @@ public class ChemicalUtils {
      * @return Chemical.
      */
     public static <CHEMICAL extends Chemical<CHEMICAL>> CHEMICAL readChemicalFromRegistry(@Nullable ResourceLocation name, CHEMICAL empty,
-          IForgeRegistry<CHEMICAL> registry) {
+          Registry<CHEMICAL> registry) {
         if (name == null) {
             return empty;
         }
-        CHEMICAL chemical = registry.getValue(name);
+        CHEMICAL chemical = registry.get(name);
         if (chemical == null) {
             return empty;
         }

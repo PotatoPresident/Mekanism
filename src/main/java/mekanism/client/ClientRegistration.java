@@ -181,6 +181,7 @@ import mekanism.common.resource.ResourceType;
 import mekanism.common.tile.qio.TileEntityQIOComponent;
 import mekanism.common.tile.transmitter.TileEntityLogisticalTransporter;
 import mekanism.common.util.WorldUtils;
+import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.color.item.ItemColors;
@@ -221,8 +222,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod.EventBusSubscriber(modid = Mekanism.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ClientRegistration {
+public class ClientRegistration implements ClientModInitializer {
 
     private static final FieldReflectionHelper<SeparatePerspectiveModel.BakedModel, BakedModel> SEPARATE_PERSPECTIVE_BASE_MODEL =
           new FieldReflectionHelper<>(SeparatePerspectiveModel.BakedModel.class, "baseModel", () -> null);
@@ -230,8 +230,8 @@ public class ClientRegistration {
           new FieldReflectionHelper<>(SeparatePerspectiveModel.BakedModel.class, "perspectives", ImmutableMap::of);
     private static final Map<ResourceLocation, CustomModelRegistryObject> customModels = new ConcurrentHashMap<>();
 
-    @SubscribeEvent
-    public static void init(FMLClientSetupEvent event) {
+    @Override
+    public void onInitializeClient() {
         MinecraftForge.EVENT_BUS.register(new ClientTickHandler());
         MinecraftForge.EVENT_BUS.register(new RenderTickHandler());
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, SoundHandler::onTilePlaySound);

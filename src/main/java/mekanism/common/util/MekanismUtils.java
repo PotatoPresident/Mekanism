@@ -3,8 +3,11 @@ package mekanism.common.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
+import io.github.fabricators_of_create.porting_lib.util.EnvExecutor;
+import io.github.fabricators_of_create.porting_lib.util.ServerLifecycleHooks;
 import it.unimi.dsi.fastutil.longs.Long2DoubleArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import java.util.ArrayList;
@@ -56,9 +59,12 @@ import mekanism.common.util.UnitDisplayUtils.ElectricUnit;
 import mekanism.common.util.UnitDisplayUtils.TemperatureUnit;
 import mekanism.common.util.text.OwnerDisplay;
 import mekanism.common.util.text.UpgradeDisplay;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -93,14 +99,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.UsernameCache;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
 /**
  * Utilities used by Mekanism. All miscellaneous methods are located here.
@@ -144,7 +143,7 @@ public final class MekanismUtils {
     public static Player tryGetClientPlayer() {
         //Note: Ideally we would have some way to get which player is in question on the server
         // as this is mostly used in tooltips, but odds are it won't end up being called
-        return DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> MekanismClient::tryGetClientPlayer);
+        return EnvExecutor.callWhenOn(EnvType.CLIENT, () -> MekanismClient::tryGetClientPlayer);
     }
 
     /**
@@ -155,9 +154,9 @@ public final class MekanismUtils {
     @Nonnull
     public static String getModId(@Nonnull ItemStack stack) {
         Item item = stack.getItem();
-        String modid = item.getCreatorModId(stack);
+        String modid = null; //item.getCreatorModId(stack);
         if (modid == null) {
-            ResourceLocation registryName = item.getRegistryName();
+            ResourceLocation registryName = Registry.ITEM.getKey(item);
             if (registryName == null) {
                 Mekanism.logger.error("Unexpected null registry name for item of class type: {}", item.getClass().getSimpleName());
                 return "";
@@ -403,7 +402,7 @@ public final class MekanismUtils {
     }
 
     public static BlockHitResult rayTrace(Player player, ClipContext.Fluid fluidMode) {
-        return rayTrace(player, player.getAttributeValue(ForgeMod.REACH_DISTANCE.get()), fluidMode);
+        return rayTrace(player, player.getAttributeValue(ReachEntityAttributes.REACH), fluidMode);
     }
 
     public static BlockHitResult rayTrace(Player player, double reach) {
@@ -564,7 +563,7 @@ public final class MekanismUtils {
             return "<???>";
         }
         String ret = UsernameCache.getLastKnownUsername(uuid);
-        if (ret == null && !warnedFails.contains(uuid) && EffectiveSide.get().isServer()) { // see if MC/Yggdrasil knows about it?!
+        if (ret == null && !warnedFails.contains(uuid) && FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) { // see if MC/Yggdrasil knows about it?!
             Optional<GameProfile> gp = ServerLifecycleHooks.getCurrentServer().getProfileCache().get(uuid);
             if (gp.isPresent()) {
                 ret = gp.get().getName();

@@ -12,8 +12,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.tags.ITagManager;
 
 public class ChemicalTags<CHEMICAL extends Chemical<CHEMICAL>> {
 
@@ -22,10 +20,10 @@ public class ChemicalTags<CHEMICAL extends Chemical<CHEMICAL>> {
     public static final ChemicalTags<Pigment> PIGMENT = new ChemicalTags<>(MekanismAPI::pigmentRegistryName, MekanismAPI::pigmentRegistry);
     public static final ChemicalTags<Slurry> SLURRY = new ChemicalTags<>(MekanismAPI::slurryRegistryName, MekanismAPI::slurryRegistry);
 
-    private final Supplier<IForgeRegistry<CHEMICAL>> registrySupplier;
+    private final Supplier<Registry<CHEMICAL>> registrySupplier;
     private final Supplier<ResourceKey<? extends Registry<CHEMICAL>>> registryKeySupplier;
 
-    private ChemicalTags(Supplier<ResourceKey<? extends Registry<CHEMICAL>>> registryKeySupplier, Supplier<IForgeRegistry<CHEMICAL>> registrySupplier) {
+    private ChemicalTags(Supplier<ResourceKey<? extends Registry<CHEMICAL>>> registryKeySupplier, Supplier<Registry<CHEMICAL>> registrySupplier) {
         this.registrySupplier = registrySupplier;
         this.registryKeySupplier = registryKeySupplier;
     }
@@ -40,18 +38,10 @@ public class ChemicalTags<CHEMICAL extends Chemical<CHEMICAL>> {
      * @apiNote For statically initializing optional tags, {@link net.minecraftforge.registries.DeferredRegister#createOptionalTagKey(String, Set)} must be used instead.
      */
     public TagKey<CHEMICAL> tag(ResourceLocation name) {
-        return getManager().map(manager -> manager.createTagKey(name))
-              .orElseGet(() -> TagKey.create(registryKeySupplier.get(), name));
+        return  TagKey.create(registryKeySupplier.get(), name);
     }
 
-    /**
-     * Gets the tag manager for this type of tag if it is after the registry has been created.
-     */
-    public Optional<ITagManager<CHEMICAL>> getManager() {
-        IForgeRegistry<CHEMICAL> registry = registrySupplier.get();
-        if (registry == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(registry.tags());
+    public Registry<CHEMICAL> getRegistry() {
+        return registrySupplier.get();
     }
 }

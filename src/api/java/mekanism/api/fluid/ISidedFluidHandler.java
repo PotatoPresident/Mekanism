@@ -5,7 +5,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import mekanism.api.Action;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 /**
  * A sided variant of {@link IExtendedFluidHandler}
@@ -94,10 +94,10 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
      *
      * @return The maximum fluid amount held by the tank.
      */
-    int getTankCapacity(int tank, @Nullable Direction side);
+    long getTankCapacity(int tank, @Nullable Direction side);
 
     @Override
-    default int getTankCapacity(int tank) {
+    default long getTankCapacity(int tank) {
         return getTankCapacity(tank, getFluidSideFor());
     }
 
@@ -167,10 +167,10 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
      * @return {@link FluidStack} extracted from the tank, must be empty if nothing can be extracted. The returned {@link FluidStack} can be safely modified after, so the
      * tank should return a new or copied stack.
      */
-    FluidStack extractFluid(int tank, int amount, @Nullable Direction side, Action action);
+    FluidStack extractFluid(int tank, long amount, @Nullable Direction side, Action action);
 
     @Override
-    default FluidStack extractFluid(int tank, int amount, Action action) {
+    default FluidStack extractFluid(int tank, long amount, Action action) {
         return extractFluid(tank, amount, getFluidSideFor(), action);
     }
 
@@ -218,7 +218,7 @@ public interface ISidedFluidHandler extends IExtendedFluidHandler {
      * extracted is found, all future extractions will make sure to also make sure they are for the same type of fluid.
      * @apiNote It is not guaranteed that the default implementation will be how this {@link IExtendedFluidHandler} ends up distributing the extraction.
      */
-    default FluidStack extractFluid(int amount, @Nullable Direction side, Action action) {
+    default FluidStack extractFluid(long amount, @Nullable Direction side, Action action) {
         return ExtendedFluidHandlerUtils.extract(amount, action, () -> getTanks(side), tank -> getFluidInTank(tank, side), (tank, a, act) -> extractFluid(tank, a, side, act));
     }
 

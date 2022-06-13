@@ -1,6 +1,8 @@
 package mekanism.api.providers;
 
 import javax.annotation.Nonnull;
+
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -27,7 +29,7 @@ public interface IItemProvider extends IBaseProvider, ItemLike {
 
     @Override
     default ResourceLocation getRegistryName() {
-        return asItem().getRegistryName();
+        return Registry.ITEM.getKey(asItem());
     }
 
     @Override

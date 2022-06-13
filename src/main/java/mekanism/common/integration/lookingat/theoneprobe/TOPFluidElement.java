@@ -7,7 +7,7 @@ import mekanism.common.Mekanism;
 import mekanism.common.integration.lookingat.FluidElement;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 
 public class TOPFluidElement extends FluidElement implements IElement {
 

@@ -9,6 +9,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidStack;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.chemical.ChemicalType;
@@ -22,7 +24,9 @@ import mekanism.api.chemical.pigment.PigmentStack;
 import mekanism.api.chemical.slurry.Slurry;
 import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.api.math.FloatingLong;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -31,8 +35,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -216,7 +218,7 @@ public class SerializerHelper {
             throw new JsonSyntaxException("Expected amount to be greater than zero.");
         }
         ResourceLocation resourceLocation = new ResourceLocation(GsonHelper.getAsString(json, JsonConstants.FLUID));
-        Fluid fluid = ForgeRegistries.FLUIDS.getValue(resourceLocation);
+        Fluid fluid = Registry.FLUID.get(resourceLocation);
         if (fluid == null || fluid == Fluids.EMPTY) {
             throw new JsonSyntaxException("Invalid fluid type '" + resourceLocation + "'");
         }
@@ -310,7 +312,7 @@ public class SerializerHelper {
      */
     public static JsonElement serializeItemStack(@Nonnull ItemStack stack) {
         JsonObject json = new JsonObject();
-        json.addProperty(JsonConstants.ITEM, stack.getItem().getRegistryName().toString());
+        json.addProperty(JsonConstants.ITEM, Registry.ITEM.getKey(stack.getItem()).toString());
         if (stack.getCount() > 1) {
             json.addProperty(JsonConstants.COUNT, stack.getCount());
         }
@@ -329,7 +331,7 @@ public class SerializerHelper {
      */
     public static JsonElement serializeFluidStack(@Nonnull FluidStack stack) {
         JsonObject json = new JsonObject();
-        json.addProperty(JsonConstants.FLUID, stack.getFluid().getRegistryName().toString());
+        json.addProperty(JsonConstants.FLUID, Registry.FLUID.getKey(stack.getFluid()).toString());
         json.addProperty(JsonConstants.AMOUNT, stack.getAmount());
         if (stack.hasTag()) {
             json.addProperty(JsonConstants.NBT, stack.getTag().toString());

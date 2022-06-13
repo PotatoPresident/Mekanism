@@ -8,54 +8,55 @@ import mekanism.api.chemical.gas.Gas;
 import mekanism.api.chemical.infuse.InfuseType;
 import mekanism.api.chemical.pigment.Pigment;
 import mekanism.api.chemical.slurry.Slurry;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.ForgeRegistryTagsProvider;
-import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * Helper classes for implementing tag providers for various chemical types.
  */
-public abstract class ChemicalTagsProvider<CHEMICAL extends Chemical<CHEMICAL>> extends ForgeRegistryTagsProvider<CHEMICAL> {
+public abstract class ChemicalTagsProvider<CHEMICAL extends Chemical<CHEMICAL>> extends FabricTagProvider<CHEMICAL> {
 
     private final String baseName;
 
-    protected ChemicalTagsProvider(DataGenerator gen, IForgeRegistry<CHEMICAL> registry, String modid, @Nullable ExistingFileHelper existingFileHelper, String baseName) {
-        super(gen, registry, modid, existingFileHelper);
+    protected ChemicalTagsProvider(FabricDataGenerator gen, Registry<CHEMICAL> registry, String path, String baseName) {
+        super(gen, registry, path, baseName);
         this.baseName = baseName;
     }
 
     @Nonnull
     @Override
     public String getName() {
-        return baseName + " Tags: " + modId;
+        return baseName + " Tags: " + getFabricDataGenerator().getModId();
     }
 
     public abstract static class GasTagsProvider extends ChemicalTagsProvider<Gas> {
 
-        protected GasTagsProvider(DataGenerator gen, String modid, @Nullable ExistingFileHelper existingFileHelper) {
-            super(gen, MekanismAPI.gasRegistry(), modid, existingFileHelper, "Gas");
+        protected GasTagsProvider(FabricDataGenerator gen) {
+            super(gen, MekanismAPI.gasRegistry(), "gas", "Gas");
         }
     }
 
     public abstract static class InfuseTypeTagsProvider extends ChemicalTagsProvider<InfuseType> {
 
-        protected InfuseTypeTagsProvider(DataGenerator gen, String modid, @Nullable ExistingFileHelper existingFileHelper) {
-            super(gen, MekanismAPI.infuseTypeRegistry(), modid, existingFileHelper, "Infuse Type");
+        protected InfuseTypeTagsProvider(FabricDataGenerator gen) {
+            super(gen, MekanismAPI.infuseTypeRegistry(),"infuse_type", "Infuse Type");
         }
     }
 
     public abstract static class PigmentTagsProvider extends ChemicalTagsProvider<Pigment> {
 
-        protected PigmentTagsProvider(DataGenerator gen, String modid, @Nullable ExistingFileHelper existingFileHelper) {
-            super(gen, MekanismAPI.pigmentRegistry(), modid, existingFileHelper, "Pigment");
+        protected PigmentTagsProvider(FabricDataGenerator gen) {
+            super(gen, MekanismAPI.pigmentRegistry(), "pigmet", "Pigment");
         }
     }
 
     public abstract static class SlurryTagsProvider extends ChemicalTagsProvider<Slurry> {
 
-        protected SlurryTagsProvider(DataGenerator gen, String modid, @Nullable ExistingFileHelper existingFileHelper) {
-            super(gen, MekanismAPI.slurryRegistry(), modid, existingFileHelper, "Slurry");
+        protected SlurryTagsProvider(FabricDataGenerator gen) {
+            super(gen, MekanismAPI.slurryRegistry(), "slurry", "Slurry");
         }
     }
 }
